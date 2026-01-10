@@ -2,177 +2,324 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>АКИМ.PRO — Электрик Талас 24/7</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKIM.PRO — Защищенное Управление</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'akim-pro-store';
+
+        // Конфигурация доступа
+        const ADMIN_PASS = "0707"; // Твой пароль для входа
+
+        window.inventory = [];
+        window.cart = JSON.parse(localStorage.getItem('akim_neon_cart')) || [];
+        window.isAuthorized = sessionStorage.getItem('akim_admin_auth') === 'true';
+
+        async function initAuth() {
+            await signInAnonymously(auth);
+            onAuthStateChanged(auth, (user) => {
+                if (user) loadProducts();
+            });
+        }
+
+        function loadProducts() {
+            const q = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+            onSnapshot(q, (snapshot) => {
+                window.inventory = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderProducts();
+                if(window.isAuthorized) renderAdminList();
+            });
+        }
+
+        window.addProduct = async (e) => {
+            e.preventDefault();
+            if(!window.isAuthorized) return;
+            const formData = new FormData(e.target);
+            const newProduct = {
+                name: formData.get('name'),
+                price: Number(formData.get('price')),
+                cat: formData.get('cat'),
+                brand: formData.get('brand'),
+                img: formData.get('img') || "https://images.unsplash.com/photo-1558211583-d28f610b15a0?w=400",
+                timestamp: Date.now()
+            };
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), newProduct);
+                e.target.reset();
+                showStatus("Товар добавлен!");
+            } catch (err) { showStatus("Ошибка доступа", true); }
+        };
+
+        window.deleteProduct = async (id) => {
+            if(!window.isAuthorized) return;
+            if(confirm("Удалить этот товар из базы?")) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id));
+            }
+        };
+
+        window.tryLogin = () => {
+            if(window.isAuthorized) {
+                toggleAdminModal();
+                return;
+            }
+            const pass = prompt("Введите ПИН-код администратора:");
+            if(pass === ADMIN_PASS) {
+                window.isAuthorized = true;
+                sessionStorage.setItem('akim_admin_auth', 'true');
+                renderAdminList();
+                toggleAdminModal();
+            } else if (pass !== null) {
+                alert("Неверный пароль!");
+            }
+        };
+
+        window.renderProducts = (items = window.inventory) => {
+            const grid = document.getElementById('appGrid');
+            grid.innerHTML = items.length ? '' : '<p class="text-center col-span-full py-20 text-gray-500 italic">На складе пусто...</p>';
+            
+            items.forEach((item, idx) => {
+                grid.innerHTML += `
+                    <div class="product-card rounded-3xl p-5 flex flex-col opacity-0" style="animation: slideUp 0.4s forwards ${idx * 0.05}s">
+                        <div class="h-44 bg-white/[0.02] rounded-2xl mb-4 flex items-center justify-center relative overflow-hidden group border border-white/5">
+                            <img src="${item.img}" class="max-w-[80%] max-h-[80%] object-contain opacity-50 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110">
+                            <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-lg text-[8px] font-black text-[#00f2ff] uppercase border border-[#00f2ff]/20">
+                                ${item.brand}
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-sm font-bold text-gray-200 leading-tight mb-4">${item.name}</h3>
+                            <div class="flex items-center justify-between mt-auto">
+                                <div>
+                                    <p class="text-[8px] text-gray-500 uppercase font-bold">Цена за ед.</p>
+                                    <p class="text-xl font-black text-white orbitron italic">${item.price.toLocaleString()}<span class="text-xs text-[#00f2ff] ml-1">C</span></p>
+                                </div>
+                                <button onclick="addToCart('${item.id}')" class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-[#00f2ff] hover:text-black transition-all group border border-white/5">
+                                    <i class="fas fa-plus group-hover:rotate-90 transition-transform"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        window.renderAdminList = () => {
+            const list = document.getElementById('adminProductList');
+            if(!list) return;
+            list.innerHTML = window.inventory.map(item => `
+                <div class="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
+                    <div class="truncate pr-4">
+                        <p class="text-[10px] font-bold text-white truncate">${item.name}</p>
+                        <p class="text-[9px] text-yellow-500 font-black">${item.price} с.</p>
+                    </div>
+                    <button onclick="deleteProduct('${item.id}')" class="text-red-500 p-2 hover:bg-red-500/10 rounded-lg transition-colors"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `).join('');
+        };
+
+        window.changeCategory = (cat, el) => {
+            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+            if(el) el.classList.add('active');
+            const filtered = cat === 'all' ? window.inventory : window.inventory.filter(i => i.cat === cat);
+            renderProducts(filtered);
+        };
+
+        window.addToCart = (id) => {
+            const item = window.inventory.find(i => i.id === id);
+            const exists = window.cart.find(c => c.id === id);
+            if(exists) exists.qty++; else window.cart.push({...item, qty: 1});
+            syncCart();
+        };
+
+        window.syncCart = () => {
+            localStorage.setItem('akim_neon_cart', JSON.stringify(window.cart));
+            updateCartUI();
+        };
+
+        window.updateCartUI = () => {
+            const qtySum = window.cart.reduce((sum, i) => sum + i.qty, 0);
+            const total = window.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            document.getElementById('cartCount').innerText = qtySum;
+            document.getElementById('cartCount').classList.toggle('hidden', qtySum === 0);
+            document.getElementById('cartTotal').innerText = `${total.toLocaleString()} с.`;
+            
+            document.getElementById('cartItems').innerHTML = window.cart.map((item, i) => `
+                <div class="flex gap-4 bg-white/[0.03] p-4 rounded-2xl items-center border border-white/5">
+                    <div class="flex-grow">
+                        <h4 class="text-[11px] font-bold text-gray-300 leading-tight">${item.name}</h4>
+                        <p class="text-[#00f2ff] font-black text-sm mt-1">${(item.price * item.qty).toLocaleString()} с.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="stepCart(${i}, -1)" class="w-7 h-7 bg-white/5 rounded-lg text-xs">-</button>
+                        <span class="text-xs font-black w-4 text-center">${item.qty}</span>
+                        <button onclick="stepCart(${i}, 1)" class="w-7 h-7 bg-white/5 rounded-lg text-xs">+</button>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.stepCart = (idx, delta) => {
+            window.cart[idx].qty += delta;
+            if(window.cart[idx].qty <= 0) window.cart.splice(idx, 1);
+            syncCart();
+        };
+
+        window.toggleCart = () => document.getElementById('cartSlide').classList.toggle('translate-x-full');
+        window.toggleAdminModal = () => document.getElementById('adminModal').classList.toggle('hidden');
+
+        window.showStatus = (msg, isError = false) => {
+            const s = document.getElementById('statusMsg');
+            s.innerText = msg;
+            s.style.color = isError ? '#ef4444' : '#fbbf24';
+            setTimeout(() => s.innerText = '', 3000);
+        };
+
+        window.submitOrder = () => {
+            if(!window.cart.length) return;
+            let text = "⚡️ ЗАКАЗ AKIM.PRO ⚡️\n\n";
+            window.cart.forEach(i => text += `▪️ ${i.name} [x${i.qty}] = ${i.price * i.qty}с\n`);
+            text += `\n💵 ИТОГО: ${document.getElementById('cartTotal').innerText}`;
+            window.open(`https://wa.me/996755000228?text=${encodeURIComponent(text)}`);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAuth();
+            updateCartUI();
+            document.getElementById('mainSearch').oninput = (e) => {
+                const v = e.target.value.toLowerCase();
+                renderProducts(window.inventory.filter(i => i.name.toLowerCase().includes(v) || i.brand.toLowerCase().includes(v)));
+            };
+        });
+
+    </script>
     <style>
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        .sos-btn { animation: pulse-red 2s infinite; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        html { scroll-behavior: smooth; }
-        body { overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;700;900&display=swap');
+        :root { --neon: #00f2ff; --bg: #050505; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; scroll-behavior: smooth; }
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+        .category-tab.active { color: var(--neon); border-bottom: 2px solid var(--neon); text-shadow: 0 0 10px rgba(0, 242, 255, 0.4); }
+        .product-card { background: linear-gradient(145deg, #0f0f0f, #050505); border: 1px solid rgba(255, 255, 255, 0.03); transition: 0.3s; }
+        .product-card:hover { border-color: var(--neon); box-shadow: 0 0 30px rgba(0, 242, 255, 0.05); }
+        @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .custom-scroll::-webkit-scrollbar { display: none; }
+        input, select { -webkit-appearance: none; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans">
+<body class="pb-24">
 
-    <header class="fixed w-full z-50 glass">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="text-xl font-black italic">⚡ АКИМ.<span class="text-yellow-500 font-bold">PRO</span></div>
-            <a href="tel:+996755000228" class="font-bold text-sm text-yellow-500">+996 755 000 228</a>
+    <!-- HEADER -->
+    <header class="p-6 flex justify-between items-center border-b border-white/5 bg-black/50 sticky top-0 z-50 backdrop-blur-md">
+        <div>
+            <h1 class="orbitron text-2xl font-black tracking-widest text-white">AKIM<span class="text-[#00f2ff]">.PRO</span></h1>
+            <p class="text-[8px] uppercase tracking-[0.4em] text-gray-500 font-bold">Professional Systems</p>
         </div>
-        <div class="flex overflow-x-auto no-scrollbar gap-2 px-4 pb-3 text-[10px] uppercase font-bold tracking-wider border-t border-white/5 pt-2">
-            <a href="#emergency" class="whitespace-nowrap bg-red-600/20 text-red-500 px-3 py-1 rounded-full border border-red-500/30">Срочный вызов</a>
-            <a href="#services" class="whitespace-nowrap bg-white/5 px-3 py-1 rounded-full border border-white/10">Наши услуги</a>
-            <a href="#calc" class="whitespace-nowrap bg-white/5 px-3 py-1 rounded-full border border-white/10">Калькулятор</a>
-            <a href="#collab" class="whitespace-nowrap bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full border border-blue-500/30">Сотрудничество</a>
-            <a href="#steps" class="whitespace-nowrap bg-white/5 px-3 py-1 rounded-full border border-white/10">Этапы</a>
-            <a href="#portfolio" class="whitespace-nowrap bg-white/5 px-3 py-1 rounded-full border border-white/10">Портфолио</a>
+        <div class="flex gap-4">
+            <button onclick="tryLogin()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-yellow-500/50 hover:text-yellow-500 transition-colors">
+                <i class="fas fa-key text-xs"></i>
+            </button>
+            <button onclick="toggleCart()" class="relative w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                <i class="fas fa-shopping-cart text-xs"></i>
+                <span id="cartCount" class="absolute -top-1 -right-1 bg-[#00f2ff] text-black text-[9px] font-black px-1.5 rounded-full hidden animate-pulse">0</span>
+            </button>
         </div>
     </header>
 
-    <section id="emergency" class="min-h-screen flex items-center justify-center pt-28 px-4 bg-slate-900 relative">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-red-900/20 via-transparent to-transparent"></div>
-        <div class="text-center z-10 max-w-xl">
-            <div class="inline-block px-4 py-1 bg-red-600 text-white text-[10px] font-black rounded-full mb-6 uppercase tracking-widest">Аварийный выезд 24/7</div>
-            <h1 class="text-4xl md:text-7xl font-black mb-6 leading-none">ПРОПАЛ СВЕТ? <br><span class="text-red-500">МЫ ПОМОЖЕМ!</span></h1>
-            <p class="text-slate-400 mb-10 text-sm md:text-lg">Срочный вызов электрика по Таласу. Приедем за 30 минут, найдем причину и вернем свет в ваш дом.</p>
-            <a href="https://wa.me/996755000228?text=SOS! Пропал свет, нужен срочный выезд!" class="sos-btn inline-block w-full md:w-auto bg-red-600 px-10 py-5 rounded-2xl font-black text-xl uppercase shadow-2xl active:scale-95 transition">Вызвать мастера</a>
-            <p class="mt-6 text-xs text-slate-500 font-bold uppercase tracking-widest">Листайте дальше, чтобы узнать больше о нас ↓</p>
-        </div>
-    </section>
+    <!-- CATEGORIES -->
+    <nav class="sticky top-[81px] z-40 bg-black/80 backdrop-blur-md border-b border-white/5 overflow-x-auto custom-scroll flex px-4 gap-8">
+        <button onclick="changeCategory('all', this)" class="category-tab active py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Все</button>
+        <button onclick="changeCategory('инструмент', this)" class="category-tab py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Инструмент</button>
+        <button onclick="changeCategory('автоматика', this)" class="category-tab py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Автоматика</button>
+        <button onclick="changeCategory('кабель', this)" class="category-tab py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Кабель</button>
+        <button onclick="changeCategory('умный-дом', this)" class="category-tab py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Smart Home</button>
+    </nav>
 
-    <section class="py-20 container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-        <div class="p-8 border border-white/5 rounded-[2rem] bg-slate-900/50">
-            <i class="fas fa-bolt text-3xl text-yellow-500 mb-4"></i>
-            <h3 class="font-bold text-lg mb-2 underline decoration-yellow-500">Мы эксперты</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">Работаем командой. Каждый мастер имеет допуск и профессиональный инструмент.</p>
+    <!-- SEARCH -->
+    <div class="p-6">
+        <div class="relative">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-600"></i>
+            <input type="text" id="mainSearch" placeholder="Поиск по складу..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-14 pr-6 text-sm outline-none focus:border-[#00f2ff]/30 transition-all">
         </div>
-        <div class="p-8 border border-white/5 rounded-[2rem] bg-slate-900/50">
-            <i class="fas fa-box-open text-3xl text-blue-500 mb-4"></i>
-            <h3 class="font-bold text-lg mb-2 underline decoration-blue-500">Свой склад</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">Вам не нужно на базар! У нас свои материалы по оптовым ценам с доставкой.</p>
-        </div>
-        <div class="p-8 border border-white/5 rounded-[2rem] bg-slate-900/50">
-            <i class="fas fa-history text-3xl text-green-500 mb-4"></i>
-            <h3 class="font-bold text-lg mb-2 underline decoration-green-500">5 лет гарантии</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">Мы не исчезаем после работы. Официальная гарантия на все виды монтажа.</p>
-        </div>
-    </section>
+    </div>
 
-    <section id="services" class="py-20 bg-slate-900/30">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-black mb-12 text-center uppercase tracking-tighter italic">Полный спектр услуг</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">01</span> Электромонтаж квартир и домов</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">02</span> Поиск короткого замыкания</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">03</span> Сборка и перенос электрощитов</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">04</span> Замена старых пробок на автоматы</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">05</span> Установка розеток и выключателей</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">06</span> Монтаж LED-лент и люстр</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">07</span> Подключение стабилизаторов (защита техники)</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">08</span> Настройка генераторов</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">09</span> Видеонаблюдение и домофоны</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">10</span> Установка датчиков света и движения</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">11</span> Монтаж теплого пола</div>
-                <div class="p-4 bg-slate-800 rounded-xl flex items-center gap-4 border border-white/5"><span class="text-yellow-500 font-black">12</span> Промышленная электрика (цеха, склады)</div>
+    <!-- MAIN GRID -->
+    <main id="appGrid" class="px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></main>
+
+    <!-- ADMIN MODAL -->
+    <div id="adminModal" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/95 backdrop-blur-xl" onclick="toggleAdminModal()"></div>
+        <div class="relative bg-zinc-900 w-full max-w-lg rounded-[2.5rem] p-8 border border-white/10 flex flex-col max-h-[90vh] shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="orbitron text-xl font-bold text-yellow-500 uppercase tracking-tighter">Склад: Редактор</h2>
+                <div id="statusMsg" class="text-[10px] font-bold uppercase"></div>
             </div>
-        </div>
-    </section>
-
-    <section id="calc" class="py-20">
-        <div class="container mx-auto px-4 max-w-md">
-            <div class="p-8 bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl">
-                <h2 class="text-2xl font-black mb-8 text-center uppercase tracking-widest">Калькулятор</h2>
-                <div class="space-y-6">
-                    <div class="flex justify-between items-center"><label class="text-xs">Точки (розетки):</label><input type="number" id="pts" value="0" class="bg-slate-800 p-2 rounded-lg w-16 text-center"></div>
-                    <div class="flex justify-between items-center"><label class="text-xs">Светильники:</label><input type="number" id="lgt" value="0" class="bg-slate-800 p-2 rounded-lg w-16 text-center"></div>
-                    <div class="flex justify-between items-center"><label class="text-xs">Автоматы в щит:</label><input type="number" id="aut" value="0" class="bg-slate-800 p-2 rounded-lg w-16 text-center"></div>
-                    <div class="pt-6 border-t border-white/10 flex justify-between items-center font-black text-xl text-yellow-500">
-                        <span>ИТОГО:</span>
-                        <span><span id="total">0</span> сом</span>
-                    </div>
-                    <button onclick="send()" class="w-full py-4 bg-white text-black font-black rounded-2xl uppercase tracking-tighter shadow-lg active:scale-95 transition">Рассчитать и заказать</button>
+            
+            <form onsubmit="addProduct(event)" class="space-y-4 mb-8">
+                <input name="name" placeholder="Название товара" required class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-yellow-500/50">
+                <div class="flex gap-4">
+                    <input name="price" type="number" placeholder="Цена (сом)" required class="w-1/2 bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-yellow-500/50">
+                    <input name="brand" placeholder="Бренд" required class="w-1/2 bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-yellow-500/50">
                 </div>
+                <select name="cat" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-yellow-500/50 text-gray-400">
+                    <option value="инструмент">Инструмент</option>
+                    <option value="автоматика">Автоматика</option>
+                    <option value="кабель">Кабель</option>
+                    <option value="умный-дом">Умный дом</option>
+                </select>
+                <input name="img" placeholder="URL картинки (опционально)" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-yellow-500/50">
+                <button type="submit" class="w-full bg-yellow-500 text-black font-black py-4 rounded-xl uppercase tracking-widest text-xs hover:bg-yellow-400 transition-colors">Сохранить в базу</button>
+            </form>
+
+            <h3 class="text-[9px] font-black uppercase text-gray-500 mb-4 tracking-[0.3em]">Удаление позиций:</h3>
+            <div id="adminProductList" class="flex-grow overflow-y-auto space-y-2 custom-scroll"></div>
+        </div>
+    </div>
+
+    <!-- CART SIDEBAR -->
+    <div id="cartSlide" class="fixed inset-0 z-[200] translate-x-full transition-transform duration-500">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="toggleCart()"></div>
+        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-zinc-950 p-8 flex flex-col border-l border-[#00f2ff]/20">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="orbitron text-xl font-bold text-[#00f2ff] tracking-tighter">МОЙ ВЫБОР</h2>
+                <button onclick="toggleCart()" class="text-3xl font-thin text-gray-500">&times;</button>
             </div>
-        </div>
-    </section>
-
-    <section id="steps" class="py-20 container mx-auto px-4">
-        <h2 class="text-2xl font-black mb-12 text-center uppercase">Как мы работаем</h2>
-        <div class="grid grid-cols-1 gap-6">
-            <div class="flex gap-6 items-start"><span class="text-3xl font-black text-slate-800">01</span><div><h4 class="font-bold">Вызов и диагностика</h4><p class="text-xs text-slate-500">Приезжаем, находим проблему или считаем объем работ.</p></div></div>
-            <div class="flex gap-6 items-start"><span class="text-3xl font-black text-slate-800">02</span><div><h4 class="font-bold">Смета и материалы</h4><p class="text-xs text-slate-500">Согласовываем цену. Привозим всё необходимое с нашего склада.</p></div></div>
-            <div class="flex gap-6 items-start"><span class="text-3xl font-black text-slate-800">03</span><div><h4 class="font-bold">Чистый монтаж</h4><p class="text-xs text-slate-500">Работаем проф. инструментом. После нас — порядок.</p></div></div>
-        </div>
-    </section>
-
-    <section id="portfolio" class="py-20 bg-slate-900/50">
-        <div class="container mx-auto px-4">
-            <h2 class="text-2xl font-black mb-10 text-center uppercase tracking-widest italic">Наши работы</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=300" class="rounded-xl w-full h-40 object-cover border border-white/5">
-                <img src="https://images.unsplash.com/photo-1558402529-d2638a7023e9?w=300" class="rounded-xl w-full h-40 object-cover border border-white/5">
-                <img src="https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?w=300" class="rounded-xl w-full h-40 object-cover border border-white/5 text-slate-500">
-            </div>
-        </div>
-    </section>
-
-    <section id="collab" class="py-24 bg-blue-900/10 px-4 border-y border-blue-500/10">
-        <div class="container mx-auto">
-            <h2 class="text-3xl font-black mb-12 text-center uppercase tracking-tighter text-blue-400">Сотрудничество</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-8 bg-slate-900 rounded-3xl border border-blue-500/20">
-                    <h3 class="text-xl font-black mb-4 uppercase italic">Мастерам-электрикам</h3>
-                    <p class="text-xs text-slate-400 mb-6 leading-relaxed">В нашей команде всегда нужны профессионалы. Мы обеспечим вас заказами, предоставим инструмент и гарантируем честный процент. Работаем в Таласе и пригороде.</p>
-                    <a href="https://wa.me/996755000228?text=Я мастер, хочу работать в команде" class="text-[10px] bg-blue-600 px-6 py-3 rounded-xl font-black uppercase inline-block">Вступить в команду</a>
+            <div id="cartItems" class="flex-grow overflow-y-auto space-y-4 custom-scroll"></div>
+            <div class="mt-8 pt-6 border-t border-white/5">
+                <div class="flex justify-between items-end mb-8 px-2">
+                    <span class="text-[10px] text-gray-500 uppercase font-black tracking-widest">Общий итог:</span>
+                    <span id="cartTotal" class="text-3xl font-black italic text-[#00f2ff] orbitron">0 с.</span>
                 </div>
-                <div class="p-8 bg-slate-900 rounded-3xl border border-yellow-500/20">
-                    <h3 class="text-xl font-black mb-4 uppercase italic text-yellow-500">Прорабам и магазинам</h3>
-                    <p class="text-xs text-slate-400 mb-6 leading-relaxed">Мы открыты к долгосрочному партнерству. Качественное выполнение электромонтажа на ваших объектах. Прозрачные сметы и соблюдение сроков.</p>
-                    <a href="https://wa.me/996755000228?text=Я партнер, хочу обсудить сотрудничество" class="text-[10px] bg-yellow-600 px-6 py-3 rounded-xl font-black uppercase inline-block text-black">Стать партнером</a>
-                </div>
+                <button onclick="submitOrder()" class="w-full bg-[#00f2ff] text-black py-5 rounded-2xl font-black uppercase italic tracking-widest text-sm hover:shadow-[0_0_20px_rgba(0,242,255,0.3)] transition-all">
+                    Оформить в WhatsApp <i class="fab fa-whatsapp ml-2"></i>
+                </button>
             </div>
         </div>
-    </section>
+    </div>
 
-    <section class="py-20 container mx-auto px-4 text-center">
-        <h2 class="text-xl font-black mb-8 uppercase italic text-slate-500">Доверие клиентов</h2>
-        <div class="bg-slate-900/50 p-6 rounded-2xl italic text-xs text-slate-400">
-            "Быстро приехали, когда задымился щиток. Исправили всё за 20 минут. Большое спасибо команде Акима!" — Талас, центр.
-        </div>
-    </section>
+    <!-- BOTTOM NAV -->
+    <div class="fixed bottom-0 left-0 w-full h-20 bg-black/80 backdrop-blur-md border-t border-white/5 flex items-center justify-around z-50">
+        <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-1 text-gray-500 hover:text-[#00f2ff] transition-colors">
+            <i class="fas fa-th-large text-lg"></i>
+            <span class="text-[8px] font-bold uppercase tracking-tighter">Склад</span>
+        </button>
+        <button onclick="tryLogin()" class="flex flex-col items-center gap-1 text-gray-500 hover:text-yellow-500 transition-colors">
+            <i class="fas fa-user-cog text-lg"></i>
+            <span class="text-[8px] font-bold uppercase tracking-tighter">Админ</span>
+        </button>
+        <button onclick="toggleCart()" class="flex flex-col items-center gap-1 text-gray-500 hover:text-[#00f2ff] transition-colors">
+            <i class="fas fa-shopping-basket text-lg"></i>
+            <span class="text-[8px] font-bold uppercase tracking-tighter">Заказ</span>
+        </button>
+    </div>
 
-    <footer class="py-20 border-t border-white/5 bg-slate-950 px-4 text-center">
-        <div class="mb-10">
-            <h2 class="text-3xl font-black mb-4 italic text-yellow-500">МЫ ВСЕГДА НА СВЯЗИ</h2>
-            <p class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-6">г. Талас • Область • 24/7</p>
-            <a href="tel:+996755000228" class="text-2xl font-black block mb-6 hover:text-yellow-500 transition">+996 755 000 228</a>
-            <div class="flex justify-center gap-10 text-4xl mb-10">
-                <a href="https://wa.me/996755000228" class="text-green-500 hover:scale-110 transition"><i class="fab fa-whatsapp"></i></a>
-                <a href="#" class="text-pink-500 hover:scale-110 transition"><i class="fab fa-instagram"></i></a>
-            </div>
-        </div>
-        <div class="h-64 w-full rounded-[2rem] overflow-hidden border border-white/10 glass mb-10">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d47157.0601366914!2d72.20367254823533!3d42.52417757367468!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3896000b080f5885%3A0xc36762261b0728c0!2z0KLQsNC70LDRgQ!5e0!3m2!1sru!2skg!4v1715421234567!5m2!1sru!2skg" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-        </div>
-        <p class="text-[8px] text-slate-700 uppercase tracking-widest font-black italic">АКИМ.PRO — Профессиональная энергия Таласа</p>
-    </footer>
-
-    <script>
-        function calc() {
-            const p = document.getElementById('pts').value * 250; 
-            const l = document.getElementById('lgt').value * 400; 
-            const a = document.getElementById('aut').value * 300; 
-            document.getElementById('total').innerText = (p + l + a).toLocaleString();
-        }
-        document.querySelectorAll('input').forEach(i => i.addEventListener('input', calc));
-
-        function send() {
-            const s = document.getElementById('total').innerText;
-            window.location.href = `https://wa.me/996755000228?text=Здравствуйте! Рассчитали на сайте смету: ${s} сом. Хотим вызвать мастера в Таласе.`;
-        }
-    </script>
 </body>
 </html>
+
