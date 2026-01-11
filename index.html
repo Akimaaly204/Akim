@@ -3,323 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AKIM.PRO — Защищенное Управление</title>
+    <title>AKIM.PRO — Профессиональный Электрик Талас | 24/7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'akim-pro-store';
-
-        // Конфигурация доступа
-        const ADMIN_PASS = "0707"; // Твой пароль для входа
-
-        window.inventory = [];
-        window.cart = JSON.parse(localStorage.getItem('akim_neon_cart')) || [];
-        window.isAuthorized = sessionStorage.getItem('akim_admin_auth') === 'true';
-
-        async function initAuth() {
-            await signInAnonymously(auth);
-            onAuthStateChanged(auth, (user) => {
-                if (user) loadProducts();
-            });
-        }
-
-        function loadProducts() {
-            const q = collection(db, 'artifacts', appId, 'public', 'data', 'products');
-            onSnapshot(q, (snapshot) => {
-                window.inventory = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderProducts();
-                if(window.isAuthorized) renderAdminList();
-            });
-        }
-
-        window.addProduct = async (e) => {
-            e.preventDefault();
-            if(!window.isAuthorized) return;
-            const formData = new FormData(e.target);
-            const newProduct = {
-                name: formData.get('name'),
-                price: Number(formData.get('price')),
-                cat: formData.get('cat'),
-                brand: formData.get('brand'),
-                img: formData.get('img') || "https://images.unsplash.com/photo-1558211583-d28f610b15a0?w=400",
-                timestamp: Date.now()
-            };
-            try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), newProduct);
-                e.target.reset();
-                showStatus("Товар добавлен!");
-            } catch (err) { showStatus("Ошибка доступа", true); }
-        };
-
-        window.deleteProduct = async (id) => {
-            if(!window.isAuthorized) return;
-            if(confirm("Удалить этот товар из базы?")) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id));
-            }
-        };
-
-        window.tryLogin = () => {
-            if(window.isAuthorized) {
-                toggleAdminModal();
-                return;
-            }
-            const pass = prompt("Введите ПИН-код администратора:");
-            if(pass === ADMIN_PASS) {
-                window.isAuthorized = true;
-                sessionStorage.setItem('akim_admin_auth', 'true');
-                renderAdminList();
-                toggleAdminModal();
-            } else if (pass !== null) {
-                alert("Неверный пароль!");
-            }
-        };
-
-        window.renderProducts = (items = window.inventory) => {
-            const grid = document.getElementById('appGrid');
-            grid.innerHTML = items.length ? '' : '<p class="text-center col-span-full py-20 text-gray-500 italic">На складе пусто...</p>';
-            
-            items.forEach((item, idx) => {
-                grid.innerHTML += `
-                    <div class="product-card rounded-3xl p-5 flex flex-col opacity-0" style="animation: slideUp 0.4s forwards ${idx * 0.05}s">
-                        <div class="h-44 bg-white/[0.02] rounded-2xl mb-4 flex items-center justify-center relative overflow-hidden group border border-white/5">
-                            <img src="${item.img}" class="max-w-[80%] max-h-[80%] object-contain opacity-50 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110">
-                            <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-lg text-[8px] font-black text-[#00f2ff] uppercase border border-[#00f2ff]/20">
-                                ${item.brand}
-                            </div>
-                        </div>
-                        <div class="flex-grow">
-                            <h3 class="text-sm font-bold text-gray-200 leading-tight mb-4">${item.name}</h3>
-                            <div class="flex items-center justify-between mt-auto">
-                                <div>
-                                    <p class="text-[8px] text-gray-500 uppercase font-bold">Цена за ед.</p>
-                                    <p class="text-xl font-black text-white orbitron italic">${item.price.toLocaleString()}<span class="text-xs text-[#00f2ff] ml-1">C</span></p>
-                                </div>
-                                <button onclick="addToCart('${item.id}')" class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-[#00f2ff] hover:text-black transition-all group border border-white/5">
-                                    <i class="fas fa-plus group-hover:rotate-90 transition-transform"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        };
-
-        window.renderAdminList = () => {
-            const list = document.getElementById('adminProductList');
-            if(!list) return;
-            list.innerHTML = window.inventory.map(item => `
-                <div class="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
-                    <div class="truncate pr-4">
-                        <p class="text-[10px] font-bold text-white truncate">${item.name}</p>
-                        <p class="text-[9px] text-yellow-500 font-black">${item.price} с.</p>
-                    </div>
-                    <button onclick="deleteProduct('${item.id}')" class="text-red-500 p-2 hover:bg-red-500/10 rounded-lg transition-colors"><i class="fas fa-trash-alt"></i></button>
-                </div>
-            `).join('');
-        };
-
-        window.changeCategory = (cat, el) => {
-            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-            if(el) el.classList.add('active');
-            const filtered = cat === 'all' ? window.inventory : window.inventory.filter(i => i.cat === cat);
-            renderProducts(filtered);
-        };
-
-        window.addToCart = (id) => {
-            const item = window.inventory.find(i => i.id === id);
-            const exists = window.cart.find(c => c.id === id);
-            if(exists) exists.qty++; else window.cart.push({...item, qty: 1});
-            syncCart();
-        };
-
-        window.syncCart = () => {
-            localStorage.setItem('akim_neon_cart', JSON.stringify(window.cart));
-            updateCartUI();
-        };
-
-        window.updateCartUI = () => {
-            const qtySum = window.cart.reduce((sum, i) => sum + i.qty, 0);
-            const total = window.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-            document.getElementById('cartCount').innerText = qtySum;
-            document.getElementById('cartCount').classList.toggle('hidden', qtySum === 0);
-            document.getElementById('cartTotal').innerText = `${total.toLocaleString()} с.`;
-            
-            document.getElementById('cartItems').innerHTML = window.cart.map((item, i) => `
-                <div class="flex gap-4 bg-white/[0.03] p-4 rounded-2xl items-center border border-white/5">
-                    <div class="flex-grow">
-                        <h4 class="text-[11px] font-bold text-gray-300 leading-tight">${item.name}</h4>
-                        <p class="text-[#00f2ff] font-black text-sm mt-1">${(item.price * item.qty).toLocaleString()} с.</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <button onclick="stepCart(${i}, -1)" class="w-7 h-7 bg-white/5 rounded-lg text-xs">-</button>
-                        <span class="text-xs font-black w-4 text-center">${item.qty}</span>
-                        <button onclick="stepCart(${i}, 1)" class="w-7 h-7 bg-white/5 rounded-lg text-xs">+</button>
-                    </div>
-                </div>
-            `).join('');
-        };
-
-        window.stepCart = (idx, delta) => {
-            window.cart[idx].qty += delta;
-            if(window.cart[idx].qty <= 0) window.cart.splice(idx, 1);
-            syncCart();
-        };
-
-        window.toggleCart = () => document.getElementById('cartSlide').classList.toggle('translate-x-full');
-        window.toggleAdminModal = () => document.getElementById('adminModal').classList.toggle('hidden');
-
-        window.showStatus = (msg, isError = false) => {
-            const s = document.getElementById('statusMsg');
-            s.innerText = msg;
-            s.style.color = isError ? '#ef4444' : '#fbbf24';
-            setTimeout(() => s.innerText = '', 3000);
-        };
-
-        window.submitOrder = () => {
-            if(!window.cart.length) return;
-            let text = "⚡️ ЗАКАЗ AKIM.PRO ⚡️\n\n";
-            window.cart.forEach(i => text += `▪️ ${i.name} [x${i.qty}] = ${i.price * i.qty}с\n`);
-            text += `\n💵 ИТОГО: ${document.getElementById('cartTotal').innerText}`;
-            window.open(`https://wa.me/996755000228?text=${encodeURIComponent(text)}`);
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initAuth();
-            updateCartUI();
-            document.getElementById('mainSearch').oninput = (e) => {
-                const v = e.target.value.toLowerCase();
-                renderProducts(window.inventory.filter(i => i.name.toLowerCase().includes(v) || i.brand.toLowerCase().includes(v)));
-            };
-        });
-
-    </script>
+    <script src="https://unpkg.com/scrollreveal@4.0.9/dist/scrollreveal.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;700;900&display=swap');
-        :root { --neon: #00f2ff; --bg: #050505; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; scroll-behavior: smooth; }
-        .orbitron { font-family: 'Orbitron', sans-serif; }
-        .category-tab.active { color: var(--neon); border-bottom: 2px solid var(--neon); text-shadow: 0 0 10px rgba(0, 242, 255, 0.4); }
-        .product-card { background: linear-gradient(145deg, #0f0f0f, #050505); border: 1px solid rgba(255, 255, 255, 0.03); transition: 0.3s; }
-        .product-card:hover { border-color: var(--neon); box-shadow: 0 0 30px rgba(0, 242, 255, 0.05); }
-        @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .custom-scroll::-webkit-scrollbar { display: none; }
-        input, select { -webkit-appearance: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        
+        :root { --accent: #fbbf24; --bg: #050505; --red: #dc2626; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.05) 0%, transparent 80%);
+            z-index: -1;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+        }
+
+        .reveal { visibility: hidden; }
+        .sr .reveal { visibility: visible; }
+
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-shine::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .step-number {
+            -webkit-text-stroke: 1px rgba(251, 191, 36, 0.3);
+            color: transparent;
+            font-size: 80px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        input, textarea {
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            color: white !important;
+        }
+        input:focus { border-color: var(--accent) !important; outline: none; }
+
+        .partner-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .partner-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.05);
+        }
     </style>
 </head>
-<body class="pb-24">
+<body class="sr">
+
+    <div class="bg-glow"></div>
+
+    <!-- MOBILE STICKY CALL -->
+    <div class="lg:hidden fixed bottom-0 left-0 w-full z-[1000] p-4 bg-gradient-to-t from-black to-transparent">
+        <a href="tel:+996755000228" class="btn-shine flex items-center justify-center gap-3 w-full bg-red-600 py-4 rounded-2xl font-black text-lg uppercase shadow-2xl shadow-red-600/40">
+            <i class="fas fa-phone-alt animate-bounce"></i>
+            <span data-key="sticky_call">СРОЧНЫЙ ВЫЗОВ</span>
+        </a>
+    </div>
 
     <!-- HEADER -->
-    <header class="p-6 flex justify-between items-center border-b border-white/5 bg-black/50 sticky top-0 z-50 backdrop-blur-md">
-        <div>
-            <h1 class="orbitron text-2xl font-black tracking-widest text-white">AKIM<span class="text-[#00f2ff]">.PRO</span></h1>
-            <p class="text-[8px] uppercase tracking-[0.4em] text-gray-500 font-bold">Professional Systems</p>
+    <header class="fixed top-0 w-full z-[100] h-20 flex items-center justify-between px-4 md:px-12 glass border-b border-white/5">
+        <div class="flex items-center gap-3">
+            <a href="#home" class="flex items-center gap-2">
+                <i class="fas fa-bolt text-yellow-400 text-xl"></i>
+                <span class="font-black text-xl tracking-tighter italic uppercase">AKIM.PRO</span>
+            </a>
+            <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
+                <button onclick="setLang('ru')" id="btn-ru" class="p-2 text-[10px] font-bold rounded active bg-yellow-400 text-black">RU</button>
+                <button onclick="setLang('kg')" id="btn-kg" class="p-2 text-[10px] font-bold rounded">KG</button>
+            </div>
         </div>
-        <div class="flex gap-4">
-            <button onclick="tryLogin()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-yellow-500/50 hover:text-yellow-500 transition-colors">
-                <i class="fas fa-key text-xs"></i>
-            </button>
-            <button onclick="toggleCart()" class="relative w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                <i class="fas fa-shopping-cart text-xs"></i>
-                <span id="cartCount" class="absolute -top-1 -right-1 bg-[#00f2ff] text-black text-[9px] font-black px-1.5 rounded-full hidden animate-pulse">0</span>
-            </button>
-        </div>
+
+        <nav class="hidden lg:flex items-center gap-8 text-[10px] uppercase font-black text-gray-400 tracking-widest">
+            <a href="#services" class="hover:text-white transition-colors">Услуги</a>
+            <a href="#prices" class="hover:text-white transition-colors">Цены</a>
+            <a href="#collaboration" class="hover:text-white transition-colors">Сотрудничество</a>
+            <a href="#reviews" class="hover:text-white transition-colors">Отзывы</a>
+            <a href="#order" class="text-yellow-400 border border-yellow-400/30 px-4 py-2 rounded-lg hover:bg-yellow-400 hover:text-black transition-all">Заявка</a>
+        </nav>
+
+        <a href="tel:+996755000228" class="hidden sm:flex font-black text-xs bg-yellow-400 text-black px-5 py-2.5 rounded-xl hover:scale-105 transition-transform items-center gap-2">
+            <i class="fas fa-phone-alt"></i> +996 755 000 228
+        </a>
     </header>
 
-    <!-- CATEGORIES -->
-    <nav class="sticky top-[81px] z-40 bg-black/80 backdrop-blur-md border-b border-white/5 overflow-x-auto custom-scroll flex px-4 gap-8">
-        <button onclick="changeCategory('all', this)" class="category-tab active py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Все</button>
-        <button onclick="changeCategory('инструмент', this)" class="category-tab py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Инструмент</button>
-        <button onclick="changeCategory('автоматика', this)" class="category-tab py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Автоматика</button>
-        <button onclick="changeCategory('кабель', this)" class="category-tab py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Кабель</button>
-        <button onclick="changeCategory('умный-дом', this)" class="category-tab py-4 text-[10px] font-black uppercase tracking-widest whitespace-nowrap">Smart Home</button>
-    </nav>
-
-    <!-- SEARCH -->
-    <div class="p-6">
-        <div class="relative">
-            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-600"></i>
-            <input type="text" id="mainSearch" placeholder="Поиск по складу..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-14 pr-6 text-sm outline-none focus:border-[#00f2ff]/30 transition-all">
+    <!-- HERO -->
+    <section id="home" class="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
+        <div class="reveal mb-6 inline-flex items-center gap-2 bg-red-600/10 border border-red-600/20 px-4 py-2 rounded-full">
+            <span class="w-2 h-2 bg-red-600 rounded-full animate-ping"></span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-red-500" data-key="status">Мастер на связи 24/7</span>
         </div>
-    </div>
+        <h1 class="reveal text-5xl md:text-9xl font-black mb-6 leading-none italic uppercase">
+            ЭЛЕКТРИК <br> <span class="text-red-600">ТАЛАС</span>
+        </h1>
+        <p class="reveal text-gray-400 text-lg md:text-2xl max-w-2xl mb-12" data-key="hero_desc">
+            Профессиональный электромонтаж. От ремонта розетки до электрификации заводов. Работаем по ГОСТу.
+        </p>
+        <div class="reveal flex flex-col md:flex-row gap-4 w-full max-w-xl">
+            <a href="tel:+996755000228" class="btn-shine flex-1 bg-red-600 py-6 rounded-2xl font-black text-xl shadow-xl shadow-red-600/20">ПОЗВОНИТЬ</a>
+            <a href="#order" class="flex-1 bg-white/5 border border-white/10 py-6 rounded-2xl font-black text-xl hover:bg-white/10 transition-all uppercase">Вызвать мастера</a>
+        </div>
+    </section>
 
-    <!-- MAIN GRID -->
-    <main id="appGrid" class="px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></main>
-
-    <!-- ADMIN MODAL -->
-    <div id="adminModal" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/95 backdrop-blur-xl" onclick="toggleAdminModal()"></div>
-        <div class="relative bg-zinc-900 w-full max-w-lg rounded-[2.5rem] p-8 border border-white/10 flex flex-col max-h-[90vh] shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="orbitron text-xl font-bold text-yellow-500 uppercase tracking-tighter">Склад: Редактор</h2>
-                <div id="statusMsg" class="text-[10px] font-bold uppercase"></div>
+    <!-- УСЛУГИ (ПОЛНЫЙ БЛОК) -->
+    <section id="services" class="max-w-7xl mx-auto py-24 px-6 border-t border-white/5">
+        <div class="reveal text-center mb-16">
+            <h2 class="text-4xl md:text-6xl font-black uppercase italic">ЧТО МЫ ДЕЛАЕМ</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="reveal glass p-8 rounded-3xl border-l-4 border-yellow-400">
+                <i class="fas fa-home text-yellow-400 text-3xl mb-4"></i>
+                <h4 class="text-xl font-black mb-2 uppercase italic">Частный сектор</h4>
+                <p class="text-gray-500 text-sm italic">Монтаж в домах, квартирах, замена старой проводки, установка люстр и розеток.</p>
             </div>
-            
-            <form onsubmit="addProduct(event)" class="space-y-4 mb-8">
-                <input name="name" placeholder="Название товара" required class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-yellow-500/50">
-                <div class="flex gap-4">
-                    <input name="price" type="number" placeholder="Цена (сом)" required class="w-1/2 bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-yellow-500/50">
-                    <input name="brand" placeholder="Бренд" required class="w-1/2 bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-yellow-500/50">
+            <div class="reveal glass p-8 rounded-3xl border-l-4 border-red-600">
+                <i class="fas fa-industry text-red-600 text-3xl mb-4"></i>
+                <h4 class="text-xl font-black mb-2 uppercase italic">Пром-объекты</h4>
+                <p class="text-gray-500 text-sm italic">Электрика для цехов, складов, магазинов. Сборка ВРУ, ГРЩ, автоматизация.</p>
+            </div>
+            <div class="reveal glass p-8 rounded-3xl border-l-4 border-blue-500">
+                <i class="fas fa-tools text-blue-500 text-3xl mb-4"></i>
+                <h4 class="text-xl font-black mb-2 uppercase italic">Аварийка</h4>
+                <p class="text-gray-500 text-sm italic">Поиск короткого замыкания, ремонт щитов после возгорания, восстановление света.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ИНСТРУМЕНТЫ (БЫЛ УДАЛЕН, ВОССТАНОВЛЕН) -->
+    <section class="max-w-7xl mx-auto py-24 px-6 border-t border-white/5">
+        <div class="reveal text-center mb-12 italic">
+            <span class="text-xs uppercase tracking-[0.3em] text-gray-500">Наш арсенал</span>
+        </div>
+        <div class="flex flex-wrap justify-center gap-12 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
+            <div class="flex flex-col items-center gap-2">
+                <i class="fas fa-hammer text-4xl"></i>
+                <span class="text-[10px] font-black uppercase italic">Bosch Professional</span>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+                <i class="fas fa-screwdriver text-4xl"></i>
+                <span class="text-[10px] font-black uppercase italic">Makita Heavy Duty</span>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+                <i class="fas fa-bolt text-4xl"></i>
+                <span class="text-[10px] font-black uppercase italic">Fluke Testing</span>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+                <i class="fas fa-drill text-4xl"></i>
+                <span class="text-[10px] font-black uppercase italic">DeWalt Power</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК СОТРУДНИЧЕСТВА (БИЗНЕС + НАЙМ) -->
+    <section id="collaboration" class="max-w-7xl mx-auto py-24 px-6 border-t border-white/5">
+        <div class="reveal text-center mb-16">
+            <h2 class="text-4xl md:text-6xl font-black uppercase italic">ДЛЯ БОЛЬШИХ ПРОЕКТОВ</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="reveal partner-card glass p-10 rounded-[40px] border border-white/5 relative overflow-hidden">
+                <h3 class="text-3xl font-black mb-6 italic uppercase text-yellow-400">Прорабам</h3>
+                <p class="text-gray-400 mb-8 leading-relaxed">
+                    Возьму на себя электромонтаж "под ключ" на крупных объектах. Работа по чертежам, соблюдение сроков, отчетность. Не подвожу по материалам и качеству.
+                </p>
+                <ul class="space-y-3 mb-8 text-sm font-bold uppercase tracking-wider text-gray-300">
+                    <li class="flex items-center gap-3"><i class="fas fa-check text-yellow-400"></i> Чтение любых схем</li>
+                    <li class="flex items-center gap-3"><i class="fas fa-check text-yellow-400"></i> Ответственность за результат</li>
+                    <li class="flex items-center gap-3"><i class="fas fa-check text-yellow-400"></i> Работа с госорганами / технадзором</li>
+                </ul>
+                <a href="https://wa.me/996755000228" class="inline-block bg-white text-black px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-yellow-400 transition-colors">Обсудить партнерство</a>
+            </div>
+
+            <div class="reveal partner-card glass p-10 rounded-[40px] border border-white/5 relative overflow-hidden">
+                <h3 class="text-3xl font-black mb-6 italic uppercase text-blue-500">Нанимаем Профи</h3>
+                <p class="text-gray-400 mb-8 leading-relaxed">
+                    Ищу электриков в команду для работы на больших стройках. Если ты мастер, не пьешь на работе и знаешь ПУЭ — нам по пути.
+                </p>
+                <div class="bg-white/5 p-6 rounded-2xl mb-8">
+                    <p class="text-xs text-gray-500 uppercase mb-2">Условия:</p>
+                    <p class="font-black italic text-lg text-blue-400">Сдельная оплата + премии за сроки</p>
                 </div>
-                <select name="cat" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-yellow-500/50 text-gray-400">
-                    <option value="инструмент">Инструмент</option>
-                    <option value="автоматика">Автоматика</option>
-                    <option value="кабель">Кабель</option>
-                    <option value="умный-дом">Умный дом</option>
-                </select>
-                <input name="img" placeholder="URL картинки (опционально)" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-yellow-500/50">
-                <button type="submit" class="w-full bg-yellow-500 text-black font-black py-4 rounded-xl uppercase tracking-widest text-xs hover:bg-yellow-400 transition-colors">Сохранить в базу</button>
+                <a href="https://t.me/ta07as" class="inline-block border border-blue-500/50 text-blue-400 px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-blue-500 hover:text-white transition-all">Прислать резюме</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ЦЕНЫ -->
+    <section id="prices" class="max-w-4xl mx-auto py-24 px-6 border-t border-white/5">
+        <div class="reveal text-center mb-16">
+            <h2 class="text-4xl md:text-6xl font-black italic uppercase">ПРАЙС</h2>
+        </div>
+        <div class="reveal glass rounded-3xl overflow-hidden divide-y divide-white/5">
+            <div class="flex justify-between p-6 items-center hover:bg-white/5">
+                <span>Минимальный выезд</span> <span class="text-yellow-400 font-black italic">500 сом</span>
+            </div>
+            <div class="flex justify-between p-6 items-center hover:bg-white/5">
+                <span>Точка (черновая)</span> <span class="text-yellow-400 font-black italic">от 200 сом</span>
+            </div>
+            <div class="flex justify-between p-6 items-center hover:bg-white/5">
+                <span>Сборка щита (квартира)</span> <span class="text-yellow-400 font-black italic">от 2500 сом</span>
+            </div>
+            <div class="flex justify-between p-6 items-center hover:bg-white/5">
+                <span>Монтаж заземления</span> <span class="text-yellow-400 font-black italic">от 5000 сом</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ОТЗЫВЫ (БЫЛ УДАЛЕН, ВОССТАНОВЛЕН) -->
+    <section id="reviews" class="max-w-7xl mx-auto py-24 px-6 border-t border-white/5">
+        <div class="reveal text-center mb-16">
+            <h2 class="text-4xl md:text-6xl font-black uppercase italic">ЧТО ГОВОРЯТ КЛИЕНТЫ</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="reveal glass p-8 rounded-3xl">
+                <div class="flex gap-1 text-yellow-400 mb-4">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <p class="italic text-gray-400 mb-6">"Аким делал электрику в новом магазине. Все четко, аккуратно, провода подписаны. Прораб был доволен скоростью."</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center font-black">А</div>
+                    <span class="font-black uppercase text-xs">Арген, владелец бизнеса</span>
+                </div>
+            </div>
+            <div class="reveal glass p-8 rounded-3xl">
+                <div class="flex gap-1 text-yellow-400 mb-4">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <p class="italic text-gray-400 mb-6">"Вызвала ночью, когда запахло гарью из щитка. Приехал через 40 минут, все исправил. Спаситель!"</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center font-black">М</div>
+                    <span class="font-black uppercase text-xs">Марина, г. Талас</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ЗАЯВКА -->
+    <section id="order" class="max-w-4xl mx-auto py-24 px-6">
+        <div class="reveal glass p-10 md:p-16 rounded-[40px] border border-yellow-400/20">
+            <h2 class="text-3xl md:text-5xl font-black uppercase italic mb-8 text-center italic">НУЖЕН ЭЛЕКТРИК?</h2>
+            <form onsubmit="event.preventDefault(); alert('Аким получил ваше сообщение!');" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="text" placeholder="Имя" class="w-full p-5 rounded-2xl font-bold" required>
+                    <input type="tel" placeholder="+996 755 000 228" class="w-full p-5 rounded-2xl font-bold" required>
+                </div>
+                <textarea placeholder="Что нужно сделать?" rows="4" class="w-full p-5 rounded-2xl font-bold"></textarea>
+                <button type="submit" class="w-full bg-yellow-400 text-black py-6 rounded-2xl font-black text-xl uppercase tracking-widest hover:scale-[1.02] transition-all">Отправить заявку</button>
             </form>
-
-            <h3 class="text-[9px] font-black uppercase text-gray-500 mb-4 tracking-[0.3em]">Удаление позиций:</h3>
-            <div id="adminProductList" class="flex-grow overflow-y-auto space-y-2 custom-scroll"></div>
         </div>
-    </div>
+    </section>
 
-    <!-- CART SIDEBAR -->
-    <div id="cartSlide" class="fixed inset-0 z-[200] translate-x-full transition-transform duration-500">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="toggleCart()"></div>
-        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-zinc-950 p-8 flex flex-col border-l border-[#00f2ff]/20">
-            <div class="flex justify-between items-center mb-10">
-                <h2 class="orbitron text-xl font-bold text-[#00f2ff] tracking-tighter">МОЙ ВЫБОР</h2>
-                <button onclick="toggleCart()" class="text-3xl font-thin text-gray-500">&times;</button>
+    <!-- FOOTER -->
+    <footer class="py-20 border-t border-white/5 bg-black">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16 text-center md:text-left">
+            <div>
+                <h4 class="font-black text-2xl mb-6 italic uppercase text-yellow-400">AKIM.PRO</h4>
+                <p class="text-gray-600 text-sm leading-relaxed tracking-tighter uppercase">Высокое напряжение — высокая ответственность. Талас 2026.</p>
             </div>
-            <div id="cartItems" class="flex-grow overflow-y-auto space-y-4 custom-scroll"></div>
-            <div class="mt-8 pt-6 border-t border-white/5">
-                <div class="flex justify-between items-end mb-8 px-2">
-                    <span class="text-[10px] text-gray-500 uppercase font-black tracking-widest">Общий итог:</span>
-                    <span id="cartTotal" class="text-3xl font-black italic text-[#00f2ff] orbitron">0 с.</span>
+            <div>
+                <h4 class="font-black text-lg mb-8 uppercase text-gray-400 italic">Связь</h4>
+                <a href="tel:+996755000228" class="block text-3xl font-black mb-6 hover:text-yellow-400 transition-colors italic">+996 755 000 228</a>
+                <div class="flex justify-center md:justify-start gap-4">
+                    <a href="https://wa.me/996755000228" class="w-12 h-12 glass flex items-center justify-center rounded-full hover:bg-green-600"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://t.me/ta07as" class="w-12 h-12 glass flex items-center justify-center rounded-full hover:bg-blue-600"><i class="fab fa-telegram-plane"></i></a>
+                    <a href="https://instagram.com/ta07as.a" class="w-12 h-12 glass flex items-center justify-center rounded-full hover:bg-pink-600"><i class="fab fa-instagram"></i></a>
                 </div>
-                <button onclick="submitOrder()" class="w-full bg-[#00f2ff] text-black py-5 rounded-2xl font-black uppercase italic tracking-widest text-sm hover:shadow-[0_0_20px_rgba(0,242,255,0.3)] transition-all">
-                    Оформить в WhatsApp <i class="fab fa-whatsapp ml-2"></i>
-                </button>
+            </div>
+            <div>
+                <h4 class="font-black text-lg mb-8 uppercase text-gray-400 italic">Локация</h4>
+                <p class="text-yellow-400 font-bold mb-2 uppercase">Таласская область</p>
+                <p class="text-gray-600 text-xs italic italic">Выезд по городу и в любые села области.</p>
             </div>
         </div>
-    </div>
+        <div class="mt-24 text-center text-[10px] text-white/10 font-black tracking-[1.5em] uppercase">AKIM PROFESSIONAL • 2026</div>
+    </footer>
 
-    <!-- BOTTOM NAV -->
-    <div class="fixed bottom-0 left-0 w-full h-20 bg-black/80 backdrop-blur-md border-t border-white/5 flex items-center justify-around z-50">
-        <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-1 text-gray-500 hover:text-[#00f2ff] transition-colors">
-            <i class="fas fa-th-large text-lg"></i>
-            <span class="text-[8px] font-bold uppercase tracking-tighter">Склад</span>
-        </button>
-        <button onclick="tryLogin()" class="flex flex-col items-center gap-1 text-gray-500 hover:text-yellow-500 transition-colors">
-            <i class="fas fa-user-cog text-lg"></i>
-            <span class="text-[8px] font-bold uppercase tracking-tighter">Админ</span>
-        </button>
-        <button onclick="toggleCart()" class="flex flex-col items-center gap-1 text-gray-500 hover:text-[#00f2ff] transition-colors">
-            <i class="fas fa-shopping-basket text-lg"></i>
-            <span class="text-[8px] font-bold uppercase tracking-tighter">Заказ</span>
-        </button>
-    </div>
+    <script>
+        const langData = {
+            ru: {
+                status: "Мастер на связи 24/7",
+                hero_desc: "Профессиональный электромонтаж. От ремонта розетки до электрификации заводов. Работаем по ГОСТу.",
+                sticky_call: "СРОЧНЫЙ ВЫЗОВ"
+            },
+            kg: {
+                status: "24/7 байланыштабыз",
+                hero_desc: "Профессионалдык электромонтаж. Розетка оңдоодон баштап заводдорду токко туташтырууга чейин. ГОСТ менен иштейбиз.",
+                sticky_call: "ТЕЗ ЧАКЫРУУ"
+            }
+        };
 
+        function setLang(lang) {
+            document.querySelectorAll('header button').forEach(btn => {
+                btn.classList.remove('bg-yellow-400', 'text-black');
+                if (btn.id === 'btn-' + lang) btn.classList.add('bg-yellow-400', 'text-black');
+            });
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (langData[lang][key]) el.innerHTML = langData[lang][key];
+            });
+        }
+
+        window.addEventListener('load', () => {
+            ScrollReveal().reveal('.reveal', {
+                delay: 200, distance: '30px', origin: 'bottom', duration: 1000, interval: 150, cleanup: true
+            });
+            document.body.classList.add('sr');
+        });
+    </script>
 </body>
 </html>
-
