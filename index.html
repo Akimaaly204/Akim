@@ -3,341 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AKIM.PRO — Профессиональный Электрик Талас | 24/7</title>
+    <title>ЭлектроПульс — Экосистема №1 в КР</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://unpkg.com/scrollreveal@4.0.9/dist/scrollreveal.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        
-        :root { --accent: #fbbf24; --bg: #050505; --red: #dc2626; }
-        html { scroll-behavior: smooth; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@300;400;700;900&display=swap');
+
+        :root {
+            --electric-blue: #00d2ff;
+            --voltage-yellow: #facc15;
+            --deep-space: #020617;
+            --plasma-glow: rgba(0, 210, 255, 0.3);
+        }
+
         body {
+            background-color: var(--deep-space);
+            color: #f1f5f9;
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: #ffffff;
             overflow-x: hidden;
         }
 
-        .bg-glow {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(251, 191, 36, 0.05) 0%, transparent 80%);
-            z-index: -1;
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+
+        .bg-grid {
+            background-image: 
+                linear-gradient(to right, rgba(51, 65, 85, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(51, 65, 85, 0.1) 1px, transparent 1px);
+            background-size: 60px 60px;
         }
 
-        .glass {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-        }
-
-        .reveal { visibility: hidden; }
-        .sr .reveal { visibility: visible; }
-
-        .btn-shine {
+        .hub-card {
+            background: linear-gradient(165deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.05);
             position: relative;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             overflow: hidden;
+            backdrop-filter: blur(10px);
         }
-        .btn-shine::after {
+
+        .hub-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            border-color: var(--electric-blue);
+            box-shadow: 0 20px 50px rgba(0, 210, 255, 0.2);
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav-link::after {
             content: '';
             position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-            transform: rotate(45deg);
-            animation: shine 3s infinite;
-        }
-        @keyframes shine {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            width: 0; height: 1px;
+            bottom: -4px; left: 0;
+            background-color: var(--electric-blue);
+            transition: width 0.3s;
         }
 
-        .step-number {
-            -webkit-text-stroke: 1px rgba(251, 191, 36, 0.3);
-            color: transparent;
-            font-size: 80px;
-            font-weight: 900;
-            line-height: 1;
+        .nav-link:hover::after { width: 100%; }
+
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+        .glow-bg {
+            animation: pulse-slow 4s infinite;
         }
 
-        input, textarea {
-            background: rgba(255,255,255,0.05) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            color: white !important;
+        /* Анимация для ленты новостей */
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
-        input:focus { border-color: var(--accent) !important; outline: none; }
-
-        .partner-card {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .news-track {
+            display: flex;
+            width: max-content;
+            animation: scroll 40s linear infinite;
         }
-        .partner-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--accent);
-            background: rgba(255, 255, 255, 0.05);
+        .news-track:hover {
+            animation-play-state: paused;
         }
     </style>
 </head>
-<body class="sr">
+<body class="bg-grid">
 
-    <div class="bg-glow"></div>
+    <!-- TOP NAVIGATION -->
+    <nav class="sticky top-0 z-[100] p-6 backdrop-blur-2xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4 group cursor-pointer">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-voltage-yellow blur-md opacity-20 group-hover:opacity-50 transition"></div>
+                    <div class="relative bg-voltage-yellow p-2 rounded-xl">
+                        <i class="fas fa-bolt text-black text-2xl"></i>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-2xl font-black italic tracking-tighter uppercase leading-none font-orbitron">
+                        Электро<span class="text-cyan-400">Пульс</span>
+                    </span>
+                    <span class="text-[9px] font-bold text-slate-500 tracking-[0.3em] uppercase">Ecosystem Kyrgyzstan</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-10">
+                <div class="hidden lg:flex items-center gap-8 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <a href="#" class="nav-link hover:text-white transition">Академия</a>
+                    <a href="#" class="nav-link hover:text-white transition">Биржа</a>
+                    <a href="#" class="nav-link hover:text-white transition">Магазин</a>
+                    <a href="#" class="nav-link hover:text-white transition">Общение</a>
+                </div>
+                <button class="bg-white text-black px-7 py-2.5 rounded-full font-black text-[10px] uppercase tracking-wider hover:bg-voltage-yellow transition-all">
+                    Войти
+                </button>
+            </div>
+        </div>
+    </nav>
 
-    <!-- MOBILE STICKY CALL -->
-    <div class="lg:hidden fixed bottom-0 left-0 w-full z-[1000] p-4 bg-gradient-to-t from-black to-transparent">
-        <a href="tel:+996755000228" class="btn-shine flex items-center justify-center gap-3 w-full bg-red-600 py-4 rounded-2xl font-black text-lg uppercase shadow-2xl shadow-red-600/40">
-            <i class="fas fa-phone-alt animate-bounce"></i>
-            <span data-key="sticky_call">СРОЧНЫЙ ВЫЗОВ</span>
-        </a>
+    <!-- NEWS TICKER (НОВЫЙ БЛОК) -->
+    <div class="bg-cyan-900/20 border-y border-white/5 py-3 overflow-hidden">
+        <div class="news-track">
+            <!-- Дублируем контент для бесконечной ленты -->
+            <div class="flex gap-12 items-center px-6">
+                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fas fa-fire text-orange-500"></i> Новости: В Бишкеке открыт крупнейший склад Schneider Electric</span>
+                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
+                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-cyan-400"><i class="fas fa-star"></i> Обновление ПУЭ: Что изменилось в 2026 году?</span>
+                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
+                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fas fa-tools"></i> Поступление Milwaukee в магазин ЭлектроПульс</span>
+                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
+                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-voltage-yellow"><i class="fas fa-award"></i> Запущен конкурс "Электрик года КР" - Приз 100 000 сом</span>
+            </div>
+            <div class="flex gap-12 items-center px-6">
+                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fas fa-fire text-orange-500"></i> Новости: В Бишкеке открыт крупнейший склад Schneider Electric</span>
+                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
+                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-cyan-400"><i class="fas fa-star"></i> Обновление ПУЭ: Что изменилось в 2026 году?</span>
+                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
+                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fas fa-tools"></i> Поступление Milwaukee в магазин ЭлектроПульс</span>
+                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
+                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-voltage-yellow"><i class="fas fa-award"></i> Запущен конкурс "Электрик года КР" - Приз 100 000 сом</span>
+            </div>
+        </div>
     </div>
 
-    <!-- HEADER -->
-    <header class="fixed top-0 w-full z-[100] h-20 flex items-center justify-between px-4 md:px-12 glass border-b border-white/5">
-        <div class="flex items-center gap-3">
-            <a href="#home" class="flex items-center gap-2">
-                <i class="fas fa-bolt text-yellow-400 text-xl"></i>
-                <span class="font-black text-xl tracking-tighter italic uppercase">AKIM.PRO</span>
-            </a>
-            <div class="flex gap-1 bg-white/5 p-1 rounded-lg">
-                <button onclick="setLang('ru')" id="btn-ru" class="p-2 text-[10px] font-bold rounded active bg-yellow-400 text-black">RU</button>
-                <button onclick="setLang('kg')" id="btn-kg" class="p-2 text-[10px] font-bold rounded">KG</button>
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-6 pt-24 pb-32 text-center">
+        
+        <!-- HERO SECTION -->
+        <div class="max-w-4xl mx-auto space-y-12 mb-32 relative">
+            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full glow-bg"></div>
+            
+            <div class="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-5 py-2.5 rounded-full">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                </span>
+                <span class="text-white text-[10px] font-black uppercase tracking-[0.2em]">Сообщество профессионалов КР</span>
+            </div>
+
+            <h1 class="text-7xl md:text-9xl font-black italic uppercase leading-[0.8] font-orbitron tracking-tighter">
+                Твой <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Главный</span><br>
+                Инструмент.
+            </h1>
+
+            <p class="text-slate-400 text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed font-light italic">
+                Единая платформа для электриков Кыргызстана. Работа, обучение и лучший инструмент в одном месте.
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-6">
+                <a href="#hub" class="px-14 py-6 bg-cyan-600 rounded-2xl text-black font-black uppercase text-sm tracking-tighter hover:bg-cyan-500 hover:scale-105 transition-all shadow-[0_0_40px_rgba(0,210,255,0.2)]">
+                    Начать работу
+                </a>
+                <a href="https://wa.me/996755000228" target="_blank" class="px-14 py-6 bg-white/5 border border-white/10 rounded-2xl font-black uppercase text-sm tracking-tighter hover:border-voltage-yellow transition-all flex items-center gap-3">
+                    <i class="fab fa-whatsapp text-green-500 text-xl"></i> Поддержка
+                </a>
             </div>
         </div>
 
-        <nav class="hidden lg:flex items-center gap-8 text-[10px] uppercase font-black text-gray-400 tracking-widest">
-            <a href="#services" class="hover:text-white transition-colors">Услуги</a>
-            <a href="#prices" class="hover:text-white transition-colors">Цены</a>
-            <a href="#collaboration" class="hover:text-white transition-colors">Сотрудничество</a>
-            <a href="#reviews" class="hover:text-white transition-colors">Отзывы</a>
-            <a href="#order" class="text-yellow-400 border border-yellow-400/30 px-4 py-2 rounded-lg hover:bg-yellow-400 hover:text-black transition-all">Заявка</a>
-        </nav>
-
-        <a href="tel:+996755000228" class="hidden sm:flex font-black text-xs bg-yellow-400 text-black px-5 py-2.5 rounded-xl hover:scale-105 transition-transform items-center gap-2">
-            <i class="fas fa-phone-alt"></i> +996 755 000 228
-        </a>
-    </header>
-
-    <!-- HERO -->
-    <section id="home" class="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20">
-        <div class="reveal mb-6 inline-flex items-center gap-2 bg-red-600/10 border border-red-600/20 px-4 py-2 rounded-full">
-            <span class="w-2 h-2 bg-red-600 rounded-full animate-ping"></span>
-            <span class="text-[10px] font-black uppercase tracking-widest text-red-500" data-key="status">Мастер на связи 24/7</span>
-        </div>
-        <h1 class="reveal text-5xl md:text-9xl font-black mb-6 leading-none italic uppercase">
-            ЭЛЕКТРИК <br> <span class="text-red-600">ТАЛАС</span>
-        </h1>
-        <p class="reveal text-gray-400 text-lg md:text-2xl max-w-2xl mb-12" data-key="hero_desc">
-            Профессиональный электромонтаж. От ремонта розетки до электрификации заводов. Работаем по ГОСТу.
-        </p>
-        <div class="reveal flex flex-col md:flex-row gap-4 w-full max-w-xl">
-            <a href="tel:+996755000228" class="btn-shine flex-1 bg-red-600 py-6 rounded-2xl font-black text-xl shadow-xl shadow-red-600/20">ПОЗВОНИТЬ</a>
-            <a href="#order" class="flex-1 bg-white/5 border border-white/10 py-6 rounded-2xl font-black text-xl hover:bg-white/10 transition-all uppercase">Вызвать мастера</a>
-        </div>
-    </section>
-
-    <!-- УСЛУГИ (ПОЛНЫЙ БЛОК) -->
-    <section id="services" class="max-w-7xl mx-auto py-24 px-6 border-t border-white/5">
-        <div class="reveal text-center mb-16">
-            <h2 class="text-4xl md:text-6xl font-black uppercase italic">ЧТО МЫ ДЕЛАЕМ</h2>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="reveal glass p-8 rounded-3xl border-l-4 border-yellow-400">
-                <i class="fas fa-home text-yellow-400 text-3xl mb-4"></i>
-                <h4 class="text-xl font-black mb-2 uppercase italic">Частный сектор</h4>
-                <p class="text-gray-500 text-sm italic">Монтаж в домах, квартирах, замена старой проводки, установка люстр и розеток.</p>
-            </div>
-            <div class="reveal glass p-8 rounded-3xl border-l-4 border-red-600">
-                <i class="fas fa-industry text-red-600 text-3xl mb-4"></i>
-                <h4 class="text-xl font-black mb-2 uppercase italic">Пром-объекты</h4>
-                <p class="text-gray-500 text-sm italic">Электрика для цехов, складов, магазинов. Сборка ВРУ, ГРЩ, автоматизация.</p>
-            </div>
-            <div class="reveal glass p-8 rounded-3xl border-l-4 border-blue-500">
-                <i class="fas fa-tools text-blue-500 text-3xl mb-4"></i>
-                <h4 class="text-xl font-black mb-2 uppercase italic">Аварийка</h4>
-                <p class="text-gray-500 text-sm italic">Поиск короткого замыкания, ремонт щитов после возгорания, восстановление света.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ИНСТРУМЕНТЫ (БЫЛ УДАЛЕН, ВОССТАНОВЛЕН) -->
-    <section class="max-w-7xl mx-auto py-24 px-6 border-t border-white/5">
-        <div class="reveal text-center mb-12 italic">
-            <span class="text-xs uppercase tracking-[0.3em] text-gray-500">Наш арсенал</span>
-        </div>
-        <div class="flex flex-wrap justify-center gap-12 opacity-30 grayscale hover:grayscale-0 transition-all duration-700">
-            <div class="flex flex-col items-center gap-2">
-                <i class="fas fa-hammer text-4xl"></i>
-                <span class="text-[10px] font-black uppercase italic">Bosch Professional</span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-                <i class="fas fa-screwdriver text-4xl"></i>
-                <span class="text-[10px] font-black uppercase italic">Makita Heavy Duty</span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-                <i class="fas fa-bolt text-4xl"></i>
-                <span class="text-[10px] font-black uppercase italic">Fluke Testing</span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-                <i class="fas fa-drill text-4xl"></i>
-                <span class="text-[10px] font-black uppercase italic">DeWalt Power</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- БЛОК СОТРУДНИЧЕСТВА (БИЗНЕС + НАЙМ) -->
-    <section id="collaboration" class="max-w-7xl mx-auto py-24 px-6 border-t border-white/5">
-        <div class="reveal text-center mb-16">
-            <h2 class="text-4xl md:text-6xl font-black uppercase italic">ДЛЯ БОЛЬШИХ ПРОЕКТОВ</h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="reveal partner-card glass p-10 rounded-[40px] border border-white/5 relative overflow-hidden">
-                <h3 class="text-3xl font-black mb-6 italic uppercase text-yellow-400">Прорабам</h3>
-                <p class="text-gray-400 mb-8 leading-relaxed">
-                    Возьму на себя электромонтаж "под ключ" на крупных объектах. Работа по чертежам, соблюдение сроков, отчетность. Не подвожу по материалам и качеству.
-                </p>
-                <ul class="space-y-3 mb-8 text-sm font-bold uppercase tracking-wider text-gray-300">
-                    <li class="flex items-center gap-3"><i class="fas fa-check text-yellow-400"></i> Чтение любых схем</li>
-                    <li class="flex items-center gap-3"><i class="fas fa-check text-yellow-400"></i> Ответственность за результат</li>
-                    <li class="flex items-center gap-3"><i class="fas fa-check text-yellow-400"></i> Работа с госорганами / технадзором</li>
-                </ul>
-                <a href="https://wa.me/996755000228" class="inline-block bg-white text-black px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-yellow-400 transition-colors">Обсудить партнерство</a>
-            </div>
-
-            <div class="reveal partner-card glass p-10 rounded-[40px] border border-white/5 relative overflow-hidden">
-                <h3 class="text-3xl font-black mb-6 italic uppercase text-blue-500">Нанимаем Профи</h3>
-                <p class="text-gray-400 mb-8 leading-relaxed">
-                    Ищу электриков в команду для работы на больших стройках. Если ты мастер, не пьешь на работе и знаешь ПУЭ — нам по пути.
-                </p>
-                <div class="bg-white/5 p-6 rounded-2xl mb-8">
-                    <p class="text-xs text-gray-500 uppercase mb-2">Условия:</p>
-                    <p class="font-black italic text-lg text-blue-400">Сдельная оплата + премии за сроки</p>
+        <!-- THE HUB GRID -->
+        <div id="hub" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-32 text-left">
+            
+            <!-- ACADEMY -->
+            <div class="hub-card p-10 rounded-[3.5rem] group h-[28rem] flex flex-col justify-between border-white/10">
+                <div>
+                    <div class="w-16 h-16 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-cyan-400 text-3xl mb-8 group-hover:bg-cyan-500 group-hover:text-black transition-all">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="text-3xl font-black uppercase italic mb-4 tracking-tighter font-orbitron">Академия</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Повышай квалификацию. Курсы по ПУЭ, сборке щитов и современным стандартам монтажа.</p>
                 </div>
-                <a href="https://t.me/ta07as" class="inline-block border border-blue-500/50 text-blue-400 px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-blue-500 hover:text-white transition-all">Прислать резюме</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ЦЕНЫ -->
-    <section id="prices" class="max-w-4xl mx-auto py-24 px-6 border-t border-white/5">
-        <div class="reveal text-center mb-16">
-            <h2 class="text-4xl md:text-6xl font-black italic uppercase">ПРАЙС</h2>
-        </div>
-        <div class="reveal glass rounded-3xl overflow-hidden divide-y divide-white/5">
-            <div class="flex justify-between p-6 items-center hover:bg-white/5">
-                <span>Минимальный выезд</span> <span class="text-yellow-400 font-black italic">500 сом</span>
-            </div>
-            <div class="flex justify-between p-6 items-center hover:bg-white/5">
-                <span>Точка (черновая)</span> <span class="text-yellow-400 font-black italic">от 200 сом</span>
-            </div>
-            <div class="flex justify-between p-6 items-center hover:bg-white/5">
-                <span>Сборка щита (квартира)</span> <span class="text-yellow-400 font-black italic">от 2500 сом</span>
-            </div>
-            <div class="flex justify-between p-6 items-center hover:bg-white/5">
-                <span>Монтаж заземления</span> <span class="text-yellow-400 font-black italic">от 5000 сом</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- ОТЗЫВЫ (БЫЛ УДАЛЕН, ВОССТАНОВЛЕН) -->
-    <section id="reviews" class="max-w-7xl mx-auto py-24 px-6 border-t border-white/5">
-        <div class="reveal text-center mb-16">
-            <h2 class="text-4xl md:text-6xl font-black uppercase italic">ЧТО ГОВОРЯТ КЛИЕНТЫ</h2>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="reveal glass p-8 rounded-3xl">
-                <div class="flex gap-1 text-yellow-400 mb-4">
-                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                </div>
-                <p class="italic text-gray-400 mb-6">"Аким делал электрику в новом магазине. Все четко, аккуратно, провода подписаны. Прораб был доволен скоростью."</p>
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center font-black">А</div>
-                    <span class="font-black uppercase text-xs">Арген, владелец бизнеса</span>
+                <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-cyan-400">
+                    <span>12 Курсов</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-2 transition"></i>
                 </div>
             </div>
-            <div class="reveal glass p-8 rounded-3xl">
-                <div class="flex gap-1 text-yellow-400 mb-4">
-                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+
+            <!-- JOBS -->
+            <div class="hub-card p-10 rounded-[3.5rem] group h-[28rem] flex flex-col justify-between border-voltage-yellow/20">
+                <div>
+                    <div class="w-16 h-16 bg-voltage-yellow/10 rounded-2xl flex items-center justify-center text-voltage-yellow text-3xl mb-8 group-hover:bg-voltage-yellow group-hover:text-black transition-all">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3 class="text-3xl font-black uppercase italic mb-4 tracking-tighter font-orbitron">Биржа</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Заказы по всему Кыргызстану. От частных квартир до крупных промышленных тендеров.</p>
                 </div>
-                <p class="italic text-gray-400 mb-6">"Вызвала ночью, когда запахло гарью из щитка. Приехал через 40 минут, все исправил. Спаситель!"</p>
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center font-black">М</div>
-                    <span class="font-black uppercase text-xs">Марина, г. Талас</span>
+                <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-voltage-yellow">
+                    <span>8 новых сегодня</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-2 transition"></i>
+                </div>
+            </div>
+
+            <!-- MARKET -->
+            <div class="hub-card p-10 rounded-[3.5rem] group h-[28rem] flex flex-col justify-between border-green-500/10">
+                <div>
+                    <div class="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-400 text-3xl mb-8 group-hover:bg-green-500 group-hover:text-black transition-all">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3 class="text-3xl font-black uppercase italic mb-4 tracking-tighter font-orbitron leading-none">Магазин <br><span class="text-sm font-light">для электриков</span></h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Профессиональный инструмент и расходники по ценам для "своих". Спецпредложения для участников клуба.</p>
+                </div>
+                <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-green-400">
+                    <span>Скидки до 30%</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-2 transition"></i>
+                </div>
+            </div>
+
+            <!-- FORUM -->
+            <div class="hub-card p-10 rounded-[3.5rem] group h-[28rem] flex flex-col justify-between border-purple-500/10">
+                <div>
+                    <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-400 text-3xl mb-8 group-hover:bg-purple-500 group-hover:text-black transition-all">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3 class="text-3xl font-black uppercase italic mb-4 tracking-tighter font-orbitron">Общение</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Форум и профессиональные чаты. Делись опытом, спрашивай совета и находи единомышленников в КР.</p>
+                </div>
+                <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-purple-400">
+                    <span>150 Тем сегодня</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-2 transition"></i>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- БЛОК СТАТЕЙ И ОБНОВЛЕНИЙ (ДОПОЛНИТЕЛЬНО) -->
+        <div class="grid md:grid-cols-3 gap-8 mb-32 text-left">
+            <div class="md:col-span-2 space-y-6">
+                <h2 class="text-2xl font-black uppercase font-orbitron text-white">Последние статьи</h2>
+                <div class="group cursor-pointer bg-white/5 border border-white/10 p-6 rounded-3xl hover:border-cyan-400 transition">
+                    <p class="text-[10px] text-cyan-400 font-bold uppercase mb-2">Технологии • 2 часа назад</p>
+                    <h4 class="text-xl font-bold mb-3 group-hover:text-cyan-400 transition">Почему заземление в новостройках Бишкека часто не работает?</h4>
+                    <p class="text-sm text-slate-500">Разбираем типичные ошибки застройщиков и способы их исправления своими силами...</p>
+                </div>
+                <div class="group cursor-pointer bg-white/5 border border-white/10 p-6 rounded-3xl hover:border-cyan-400 transition">
+                    <p class="text-[10px] text-voltage-yellow font-bold uppercase mb-2">Обзор • Вчера</p>
+                    <h4 class="text-xl font-bold mb-3 group-hover:text-voltage-yellow transition">ТОП-5 мультиметров до 5000 сом: Что выбрать мастеру?</h4>
+                    <p class="text-sm text-slate-500">Сравнительный тест точности и надежности популярных моделей на рынке КР...</p>
+                </div>
+            </div>
+            <div class="space-y-6">
+                <h2 class="text-2xl font-black uppercase font-orbitron text-white">Обновления</h2>
+                <div class="bg-white/5 border border-white/10 p-6 rounded-3xl">
+                    <ul class="space-y-4">
+                        <li class="flex gap-3">
+                            <div class="w-1.5 h-1.5 bg-green-500 rounded-full mt-1.5"></div>
+                            <p class="text-xs text-slate-400"><span class="text-white font-bold">Биржа:</span> Добавлены фильтры по районам Бишкека.</p>
+                        </li>
+                        <li class="flex gap-3">
+                            <div class="w-1.5 h-1.5 bg-green-500 rounded-full mt-1.5"></div>
+                            <p class="text-xs text-slate-400"><span class="text-white font-bold">Магазин:</span> Теперь доступна оплата через MBANK.</p>
+                        </li>
+                        <li class="flex gap-3">
+                            <div class="w-1.5 h-1.5 bg-cyan-500 rounded-full mt-1.5"></div>
+                            <p class="text-xs text-slate-400"><span class="text-white font-bold">Академия:</span> Загружен новый урок по ПЛК.</p>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- ЗАЯВКА -->
-    <section id="order" class="max-w-4xl mx-auto py-24 px-6">
-        <div class="reveal glass p-10 md:p-16 rounded-[40px] border border-yellow-400/20">
-            <h2 class="text-3xl md:text-5xl font-black uppercase italic mb-8 text-center italic">НУЖЕН ЭЛЕКТРИК?</h2>
-            <form onsubmit="event.preventDefault(); alert('Аким получил ваше сообщение!');" class="space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input type="text" placeholder="Имя" class="w-full p-5 rounded-2xl font-bold" required>
-                    <input type="tel" placeholder="+996 755 000 228" class="w-full p-5 rounded-2xl font-bold" required>
-                </div>
-                <textarea placeholder="Что нужно сделать?" rows="4" class="w-full p-5 rounded-2xl font-bold"></textarea>
-                <button type="submit" class="w-full bg-yellow-400 text-black py-6 rounded-2xl font-black text-xl uppercase tracking-widest hover:scale-[1.02] transition-all">Отправить заявку</button>
-            </form>
-        </div>
-    </section>
+    </main>
 
     <!-- FOOTER -->
-    <footer class="py-20 border-t border-white/5 bg-black">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16 text-center md:text-left">
-            <div>
-                <h4 class="font-black text-2xl mb-6 italic uppercase text-yellow-400">AKIM.PRO</h4>
-                <p class="text-gray-600 text-sm leading-relaxed tracking-tighter uppercase">Высокое напряжение — высокая ответственность. Талас 2026.</p>
-            </div>
-            <div>
-                <h4 class="font-black text-lg mb-8 uppercase text-gray-400 italic">Связь</h4>
-                <a href="tel:+996755000228" class="block text-3xl font-black mb-6 hover:text-yellow-400 transition-colors italic">+996 755 000 228</a>
-                <div class="flex justify-center md:justify-start gap-4">
-                    <a href="https://wa.me/996755000228" class="w-12 h-12 glass flex items-center justify-center rounded-full hover:bg-green-600"><i class="fab fa-whatsapp"></i></a>
-                    <a href="https://t.me/ta07as" class="w-12 h-12 glass flex items-center justify-center rounded-full hover:bg-blue-600"><i class="fab fa-telegram-plane"></i></a>
-                    <a href="https://instagram.com/ta07as.a" class="w-12 h-12 glass flex items-center justify-center rounded-full hover:bg-pink-600"><i class="fab fa-instagram"></i></a>
+    <footer class="border-t border-white/5 py-24 px-6 bg-black">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-20 items-center">
+            <div class="text-left space-y-6">
+                <div class="flex items-center gap-3">
+                    <div class="bg-voltage-yellow p-1.5 rounded-lg">
+                        <i class="fas fa-bolt text-black text-xl"></i>
+                    </div>
+                    <p class="text-2xl font-black font-orbitron uppercase italic">Электро<span class="text-cyan-400">Пульс</span></p>
                 </div>
+                <p class="text-xs text-slate-500 uppercase tracking-widest leading-loose">
+                    Цифровая экосистема электромонтажников<br>Кыргызской Республики 2026.
+                </p>
             </div>
-            <div>
-                <h4 class="font-black text-lg mb-8 uppercase text-gray-400 italic">Локация</h4>
-                <p class="text-yellow-400 font-bold mb-2 uppercase">Таласская область</p>
-                <p class="text-gray-600 text-xs italic italic">Выезд по городу и в любые села области.</p>
+            
+            <div class="flex justify-center gap-8">
+                <a href="https://instagram.com/ta07as.a" target="_blank" class="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center text-2xl hover:bg-pink-600 hover:text-white transition-all"><i class="fab fa-instagram"></i></a>
+                <a href="https://t.me/ta07as" target="_blank" class="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center text-2xl hover:bg-cyan-600 hover:text-white transition-all"><i class="fab fa-telegram"></i></a>
+                <a href="https://wa.me/996755000228" target="_blank" class="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center text-2xl hover:bg-green-600 hover:text-white transition-all"><i class="fab fa-whatsapp"></i></a>
+            </div>
+
+            <div class="text-right space-y-2">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Прямая связь</p>
+                <a href="tel:+996755000228" class="text-3xl font-black text-white hover:text-cyan-400 transition font-orbitron">+996 755 000 228</a>
+                <p class="text-[9px] text-slate-700 uppercase mt-4">Bishkek, KG</p>
             </div>
         </div>
-        <div class="mt-24 text-center text-[10px] text-white/10 font-black tracking-[1.5em] uppercase">AKIM PROFESSIONAL • 2026</div>
     </footer>
 
-    <script>
-        const langData = {
-            ru: {
-                status: "Мастер на связи 24/7",
-                hero_desc: "Профессиональный электромонтаж. От ремонта розетки до электрификации заводов. Работаем по ГОСТу.",
-                sticky_call: "СРОЧНЫЙ ВЫЗОВ"
-            },
-            kg: {
-                status: "24/7 байланыштабыз",
-                hero_desc: "Профессионалдык электромонтаж. Розетка оңдоодон баштап заводдорду токко туташтырууга чейин. ГОСТ менен иштейбиз.",
-                sticky_call: "ТЕЗ ЧАКЫРУУ"
-            }
-        };
-
-        function setLang(lang) {
-            document.querySelectorAll('header button').forEach(btn => {
-                btn.classList.remove('bg-yellow-400', 'text-black');
-                if (btn.id === 'btn-' + lang) btn.classList.add('bg-yellow-400', 'text-black');
-            });
-            document.querySelectorAll('[data-key]').forEach(el => {
-                const key = el.getAttribute('data-key');
-                if (langData[lang][key]) el.innerHTML = langData[lang][key];
-            });
-        }
-
-        window.addEventListener('load', () => {
-            ScrollReveal().reveal('.reveal', {
-                delay: 200, distance: '30px', origin: 'bottom', duration: 1000, interval: 150, cleanup: true
-            });
-            document.body.classList.add('sr');
-        });
-    </script>
 </body>
 </html>
+
