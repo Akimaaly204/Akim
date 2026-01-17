@@ -11,114 +11,105 @@
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .page-section { display: none; }
-        .page-section.active { display: block; animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .active-tab { color: #2563eb !important; }
+        .page-section.active { display: block; }
+        .nav-btn.active { color: #2563eb; }
     </style>
 </head>
 <body class="bg-gray-50 pb-24 text-gray-950">
 
-    <div id="cart-toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest z-[2000] hidden">Товар в корзине</div>
+    <div id="cart-toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase z-[2000] hidden">Добавлено в корзину</div>
 
-    <header class="sticky top-0 z-[1000] bg-white/90 backdrop-blur-md border-b border-gray-100">
+    <!-- Шапка -->
+    <header class="sticky top-0 z-[1000] bg-white border-b border-gray-100">
         <div class="bg-blue-600 text-white text-[9px] py-2 px-4 flex justify-between font-black uppercase tracking-widest">
-            <span><i class="fas fa-map-marker-alt mr-1"></i> Талас</span>
+            <span><i class="fas fa-bolt mr-1"></i> TalasPro</span>
             <span>+996 755 000 228</span>
         </div>
         <div class="p-4 flex gap-3 items-center">
-            <div onclick="switchPage('home')" class="w-11 h-11 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-100"><i class="fas fa-bolt"></i></div>
-            <div class="flex-grow relative">
-                <input type="text" id="globalSearch" oninput="handleSearch()" placeholder="Поиск товара..." class="w-full bg-gray-100 border-none rounded-2xl py-3 px-5 text-sm outline-none">
-            </div>
+            <div onclick="switchPage('home')" class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fas fa-home"></i></div>
+            <input type="text" id="globalSearch" oninput="handleSearch()" placeholder="Поиск товара..." class="flex-grow bg-gray-100 border-none rounded-xl py-2.5 px-4 text-sm outline-none">
         </div>
     </header>
 
-    <!-- ГЛАВНАЯ -->
+    <!-- Главная (Витрина) -->
     <section id="page-home" class="page-section active px-3 py-4">
         <div id="productGrid" class="product-grid">
-            <div class="col-span-2 text-center py-20 text-gray-300 uppercase font-black text-[10px]">Загрузка...</div>
+            <div class="col-span-2 text-center py-20 text-gray-400 text-[10px] font-bold uppercase">Подключение к базе...</div>
         </div>
     </section>
 
-    <!-- КАТАЛОГ -->
+    <!-- Каталог -->
     <section id="page-catalog" class="page-section px-5 py-6">
-        <h2 class="text-xl font-black uppercase mb-6 tracking-tight">Категории</h2>
-        <div class="space-y-3">
-            <div onclick="filterByCategory('all')" class="bg-white p-5 rounded-3xl flex items-center gap-4 shadow-sm border border-gray-50">
-                <div class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center"><i class="fas fa-border-all"></i></div>
-                <span class="font-black uppercase text-[11px]">Все товары</span>
-            </div>
-            <div onclick="filterByCategory('kabel')" class="bg-white p-5 rounded-3xl flex items-center gap-4 shadow-sm border border-gray-50">
-                <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-plug"></i></div>
-                <span class="font-black uppercase text-[11px]">Провода и кабели</span>
-            </div>
-            <div onclick="filterByCategory('kinee')" class="bg-white p-5 rounded-3xl flex items-center gap-4 shadow-sm border border-gray-50">
-                <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center"><i class="fas fa-shield-bolt"></i></div>
-                <span class="font-black uppercase text-[11px]">Автоматика KINEE</span>
-            </div>
-            <div onclick="filterByCategory('solnce')" class="bg-white p-5 rounded-3xl flex items-center gap-4 shadow-sm border border-gray-50">
-                <div class="w-10 h-10 bg-yellow-400 text-white rounded-xl flex items-center justify-center"><i class="fas fa-sun"></i></div>
-                <span class="font-black uppercase text-[11px]">Солнечная энергия</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- КОРЗИНА -->
-    <section id="page-cart" class="page-section px-5 py-6">
-        <h2 class="text-xl font-black uppercase mb-6">Корзина</h2>
-        <div id="cart-items" class="space-y-3 mb-8"></div>
-        <div id="cart-footer" class="hidden bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
-            <div class="flex justify-between items-center mb-6">
-                <span class="text-[10px] font-black uppercase text-gray-400">Итого:</span>
-                <span id="cart-total" class="text-xl font-black text-blue-600">0 сом</span>
-            </div>
-            <button onclick="sendOrder()" class="w-full bg-green-500 text-white py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-green-100">
-                Заказать через WhatsApp
+        <h2 class="text-xl font-black uppercase mb-6">Категории</h2>
+        <div class="grid gap-3">
+            <button onclick="filterByCategory('all')" class="bg-white p-5 rounded-2xl flex items-center gap-4 border border-gray-100 shadow-sm text-left">
+                <i class="fas fa-th-large text-blue-600"></i> <span class="font-bold text-sm uppercase">Все товары</span>
+            </button>
+            <button onclick="filterByCategory('kinee')" class="bg-white p-5 rounded-2xl flex items-center gap-4 border border-gray-100 shadow-sm text-left">
+                <i class="fas fa-shield-alt text-blue-600"></i> <span class="font-bold text-sm uppercase">Автоматика KINEE</span>
+            </button>
+            <button onclick="filterByCategory('kabel')" class="bg-white p-5 rounded-2xl flex items-center gap-4 border border-gray-100 shadow-sm text-left">
+                <i class="fas fa-plug text-blue-600"></i> <span class="font-bold text-sm uppercase">Кабель / Провод</span>
             </button>
         </div>
     </section>
 
-    <!-- ПРОФИЛЬ -->
-    <section id="page-profile" class="page-section px-5 py-6 text-center">
-        <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-50 mb-10">
-            <div class="w-20 h-20 bg-blue-600 rounded-3xl mx-auto mb-4 flex items-center justify-center text-white text-3xl font-black">T</div>
-            <h3 class="font-black uppercase">Электрик Талас</h3>
-            <p class="text-[10px] text-gray-400 font-bold mt-1 tracking-widest uppercase">+996 755 000 228</p>
+    <!-- Заказ (Корзина) -->
+    <section id="page-cart" class="page-section px-5 py-6">
+        <h2 class="text-xl font-black uppercase mb-6">Ваш заказ</h2>
+        <div id="cart-items" class="space-y-3 mb-6"></div>
+        <div id="cart-footer" class="hidden bg-blue-50 p-6 rounded-3xl">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-xs font-bold uppercase text-gray-500">Итого:</span>
+                <span id="cart-total" class="text-lg font-black text-blue-600">0 сом</span>
+            </div>
+            <button onclick="sendOrder()" class="w-full bg-green-500 text-white py-4 rounded-2xl font-black uppercase text-xs">Заказать через WhatsApp</button>
         </div>
-        <div onclick="adminSecret()" class="opacity-10 py-10 cursor-pointer"><i class="fas fa-user-shield text-3xl"></i></div>
     </section>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t py-3 flex justify-around z-[1000]">
-        <button onclick="switchPage('home')" class="nav-btn active-tab flex flex-col items-center gap-1 text-blue-600">
+    <!-- Информация -->
+    <section id="page-profile" class="page-section px-5 py-6">
+        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 text-center mb-6">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl font-black shadow-lg">T</div>
+            <h3 class="font-black uppercase text-sm">TalasPro Электрика</h3>
+            <p class="text-[10px] text-gray-400 mt-2 uppercase tracking-widest font-bold">Талас, Кыргызстан</p>
+            <p class="text-blue-600 font-bold mt-1 text-xs">+996 755 000 228</p>
+        </div>
+        <div onclick="adminSecret()" class="opacity-5 py-10 text-center cursor-pointer"><i class="fas fa-lock text-2xl"></i></div>
+    </section>
+
+    <!-- Нижнее меню -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t py-3 flex justify-around z-[1000] shadow-xl">
+        <button onclick="switchPage('home')" class="nav-btn active flex flex-col items-center gap-1 text-gray-400">
             <i class="fas fa-home text-lg"></i><span class="text-[8px] font-black uppercase">Главная</span>
         </button>
-        <button onclick="switchPage('catalog')" class="nav-btn flex flex-col items-center gap-1 text-gray-300">
-            <i class="fas fa-list-ul text-lg"></i><span class="text-[8px] font-black uppercase">Каталог</span>
+        <button onclick="switchPage('catalog')" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-list text-lg"></i><span class="text-[8px] font-black uppercase">Каталог</span>
         </button>
-        <button onclick="switchPage('cart')" class="nav-btn flex flex-col items-center gap-1 text-gray-300 relative">
-            <i class="fas fa-shopping-bag text-lg"></i>
-            <span id="cart-count" class="absolute -top-1 -right-1.5 bg-blue-600 text-white text-[7px] font-black px-1.5 rounded-full border-2 border-white">0</span>
+        <button onclick="switchPage('cart')" class="nav-btn flex flex-col items-center gap-1 text-gray-400 relative">
+            <i class="fas fa-shopping-cart text-lg"></i>
+            <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[7px] px-1.5 rounded-full font-black">0</span>
             <span class="text-[8px] font-black uppercase">Заказ</span>
         </button>
-        <button onclick="switchPage('profile')" class="nav-btn flex flex-col items-center gap-1 text-gray-300">
-            <i class="fas fa-user text-lg"></i><span class="text-[8px] font-black uppercase">Инфо</span>
+        <button onclick="switchPage('profile')" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-info-circle text-lg"></i><span class="text-[8px] font-black uppercase">Инфо</span>
         </button>
     </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, signInAnonymously, getAuth } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'talaspro-shop';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'talaspro-shop-v1';
 
         let allProducts = [];
         let cart = [];
         let clicks = 0;
 
-        // Загрузка товаров
+        // Инициализация
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'products'), (snap) => {
             allProducts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderProducts(allProducts);
@@ -127,22 +118,38 @@
         function renderProducts(list) {
             const grid = document.getElementById('productGrid');
             if (list.length === 0) {
-                grid.innerHTML = '<p class="col-span-2 text-center py-20 text-gray-300 uppercase font-black text-[10px]">Товаров пока нет</p>';
+                grid.innerHTML = `
+                    <div class="col-span-2 text-center py-10">
+                        <p class="text-gray-400 text-[10px] font-bold uppercase mb-4">База пуста</p>
+                        <button onclick="seedProducts()" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-[9px] font-black uppercase">Создать 6 товаров</button>
+                    </div>`;
                 return;
             }
             grid.innerHTML = list.map(p => `
-                <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-50 flex flex-col">
-                    <div class="aspect-square bg-gray-50 rounded-xl mb-3 flex items-center justify-center text-blue-200">
-                        <i class="fas fa-bolt text-2xl"></i>
-                    </div>
-                    <h3 class="font-black text-[10px] uppercase h-8 line-clamp-2 leading-tight tracking-tighter">${p.title}</h3>
-                    <div class="mt-auto pt-2">
+                <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                    <div class="aspect-square bg-gray-50 rounded-xl mb-3 flex items-center justify-center text-blue-100 text-3xl"><i class="fas fa-bolt"></i></div>
+                    <h3 class="font-black text-[10px] uppercase line-clamp-2 h-8 leading-tight">${p.title}</h3>
+                    <div class="mt-3">
                         <p class="text-blue-600 font-black text-xs">${p.price} сом</p>
-                        <button onclick="addToCart('${p.id}')" class="w-full bg-gray-950 text-white py-2.5 rounded-xl text-[8px] font-black uppercase mt-2 active:scale-95 transition-all">Купить</button>
+                        <button onclick="addToCart('${p.id}')" class="w-full bg-gray-900 text-white py-2 rounded-xl text-[8px] font-black uppercase mt-2 active:scale-95">В корзину</button>
                     </div>
                 </div>
             `).join('');
         }
+
+        window.seedProducts = async () => {
+            const demo = [
+                { title: "Автомат KINEE 2P 63A", price: 1250, cat: "kinee" },
+                { title: "Кабель ВВГ 3х2.5 ГОСТ", price: 85, cat: "kabel" },
+                { title: "УЗИП DC KINEE", price: 1800, cat: "kinee" },
+                { title: "Солнечная панель 550W", price: 14500, cat: "solnce" },
+                { title: "Инвертор Hybrid 5kW", price: 45000, cat: "solnce" },
+                { title: "Автомат KINEE 1P 16A", price: 350, cat: "kinee" }
+            ];
+            for(let item of demo) {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), item);
+            }
+        };
 
         window.addToCart = (id) => {
             const product = allProducts.find(p => p.id === id);
@@ -158,7 +165,7 @@
             const cont = document.getElementById('cart-items');
             const footer = document.getElementById('cart-footer');
             if(cart.length === 0) {
-                cont.innerHTML = '<p class="text-center py-10 text-gray-300 uppercase font-bold text-[9px]">Пусто</p>';
+                cont.innerHTML = '<p class="text-center py-10 text-gray-300 font-bold text-[9px] uppercase">Пусто</p>';
                 footer.classList.add('hidden');
                 return;
             }
@@ -167,44 +174,35 @@
             cont.innerHTML = cart.map((item, idx) => {
                 total += Number(item.price);
                 return `
-                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-gray-50 shadow-sm">
+                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-gray-100">
                         <span class="text-[9px] font-black uppercase truncate pr-4">${item.title}</span>
                         <div class="flex items-center gap-3">
-                            <span class="text-blue-600 font-black text-[10px]">${item.price} с.</span>
-                            <button onclick="removeFromCart(${idx})" class="text-red-400"><i class="fas fa-times-circle"></i></button>
+                            <span class="text-blue-600 font-black text-xs">${item.price} с.</span>
+                            <button onclick="cart.splice(${idx},1);updateCart()" class="text-red-400"><i class="fas fa-times-circle"></i></button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }).join('');
             document.getElementById('cart-total').innerText = total + ' сом';
         }
 
-        window.removeFromCart = (idx) => {
-            cart.splice(idx, 1);
-            updateCart();
-        };
-
         window.sendOrder = () => {
-            let msg = "Здравствуйте! Хочу сделать заказ в TalasPro:\n\n";
-            cart.forEach((it, i) => msg += `${i+1}. ${it.title} (${it.price} сом)\n`);
-            msg += `\nИтого: ${document.getElementById('cart-total').innerText}`;
+            let msg = "Заказ TalasPro:\n\n";
+            cart.forEach((it, i) => msg += `${i+1}. ${it.title} (${it.price}с)\n`);
+            msg += `\nИТОГО: ${document.getElementById('cart-total').innerText}`;
             window.open(`https://wa.me/996755000228?text=${encodeURIComponent(msg)}`);
         };
 
         window.switchPage = (p) => {
             document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
             document.getElementById('page-' + p).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.remove('text-blue-600');
-                b.classList.add('text-gray-300');
-            });
-            event.currentTarget.classList.add('text-blue-600');
-            event.currentTarget.classList.remove('text-gray-300');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.innerText.toLowerCase().includes(p === 'home' ? 'главная' : p === 'cart' ? 'заказ' : p === 'catalog' ? 'каталог' : 'инфо'));
+            if(btn) btn.classList.add('active');
         };
 
         window.filterByCategory = (cat) => {
             if(cat === 'all') renderProducts(allProducts);
-            else renderProducts(allProducts.filter(p => (p.cat === cat) || p.title.toLowerCase().includes(cat)));
+            else renderProducts(allProducts.filter(p => p.cat === cat));
             switchPage('home');
         };
 
@@ -214,10 +212,7 @@
         };
 
         window.adminSecret = () => { 
-            if(++clicks >= 5) {
-                // Путь к админке. Убедись, что файл лежит в папке admin
-                window.location.href = 'admin/index.html'; 
-            } 
+            if(++clicks >= 5) window.location.href = 'admin/index.html'; 
         };
     </script>
 </body>
