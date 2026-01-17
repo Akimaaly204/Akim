@@ -3,314 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ЭлектроПульс — Экосистема №1 в КР</title>
+    <title>TalasPro — Маркетплейс для электриков</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@300;400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
+        body { font-family: 'Roboto', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
 
-        :root {
-            --electric-blue: #00d2ff;
-            --voltage-yellow: #facc15;
-            --deep-space: #020617;
-            --plasma-glow: rgba(0, 210, 255, 0.3);
+        .product-card { 
+            transition: all 0.2s ease-in-out; 
+            border: 1px solid #f3f4f6; 
+            display: flex; 
+            flex-direction: column;
+            background: white;
+            border-radius: 20px;
+            padding: 12px;
+        }
+        
+        .product-card:hover { transform: translateY(-3px); border-color: #3b82f6; }
+        
+        .mobile-bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; display: flex; justify-content: space-around;
+            padding: 12px 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 100;
         }
 
-        body {
-            background-color: var(--deep-space);
-            color: #f1f5f9;
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-        }
+        .active-tab { color: #2563eb !important; }
+        
+        .page-section { display: none; }
+        .page-section.active { display: block; animation: fadeIn 0.3s ease-in; }
 
-        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .bg-grid {
-            background-image: 
-                linear-gradient(to right, rgba(51, 65, 85, 0.1) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(51, 65, 85, 0.1) 1px, transparent 1px);
-            background-size: 60px 60px;
-        }
-
-        .hub-card {
-            background: linear-gradient(165deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        }
-
-        .hub-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            border-color: var(--electric-blue);
-            box-shadow: 0 20px 50px rgba(0, 210, 255, 0.2);
-        }
-
-        .nav-link {
-            position: relative;
-            transition: color 0.3s;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0; height: 1px;
-            bottom: -4px; left: 0;
-            background-color: var(--electric-blue);
-            transition: width 0.3s;
-        }
-
-        .nav-link:hover::after { width: 100%; }
-
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.7; }
-        }
-        .glow-bg {
-            animation: pulse-slow 4s infinite;
-        }
-
-        /* Анимация для ленты новостей */
-        @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        .news-track {
-            display: flex;
-            width: max-content;
-            animation: scroll 40s linear infinite;
-        }
-        .news-track:hover {
-            animation-play-state: paused;
+        /* Оптимизированный заголовок каталога */
+        .catalog-header {
+            font-size: 1.75rem; /* Уменьшен размер букв */
+            line-height: 1.2;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            color: #111827;
+            text-transform: uppercase;
         }
     </style>
 </head>
-<body class="bg-grid">
+<body class="bg-gray-50 pb-24 text-gray-900">
 
-    <!-- TOP NAVIGATION -->
-    <nav class="sticky top-0 z-[100] p-6 backdrop-blur-2xl border-b border-white/5">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-4 group cursor-pointer">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-voltage-yellow blur-md opacity-20 group-hover:opacity-50 transition"></div>
-                    <div class="relative bg-voltage-yellow p-2 rounded-xl">
-                        <i class="fas fa-bolt text-black text-2xl"></i>
-                    </div>
+    <!-- HEADER (Без фильтров) -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
+        <div class="bg-gray-950 text-white text-[10px] py-2.5 px-4 flex justify-between items-center font-bold uppercase tracking-[0.2em]">
+            <span><i class="fas fa-location-dot text-blue-500 mr-1.5"></i> ТАЛАС</span>
+            <a href="https://wa.me/996755000228" class="text-yellow-400">СВЯЗЬ: +996 755 000 228</a>
+        </div>
+
+        <nav class="py-4 px-4 flex items-center gap-3">
+            <div onclick="switchPage('home')" class="bg-blue-600 text-white w-11 h-11 flex items-center justify-center rounded-2xl shadow-lg shadow-blue-100 cursor-pointer active:scale-90 transition-transform">
+                <i class="fas fa-bolt text-xl"></i>
+            </div>
+            <div class="flex-grow relative">
+                <input type="text" id="globalSearch" onkeyup="handleSearch()" placeholder="Поиск товара..." class="w-full bg-gray-100 border-none rounded-2xl py-3 px-5 text-sm outline-none focus:ring-2 focus:ring-blue-600/20 transition-all">
+                <i class="fas fa-search absolute right-4 top-3.5 text-gray-300"></i>
+            </div>
+        </nav>
+    </header>
+
+    <!-- PAGE: HOME -->
+    <section id="page-home" class="page-section active container mx-auto px-3 py-4">
+        <div id="productGrid" class="product-grid">
+            
+            <!-- 12 товаров -->
+            <div class="product-card" data-cat="kinee" data-title="автомат dc kinee 2p 63a">
+                <div class="aspect-square bg-blue-50 rounded-2xl mb-3 flex items-center justify-center relative">
+                    <i class="fas fa-toggle-on text-4xl text-blue-200"></i>
+                    <span class="absolute top-2 left-2 bg-blue-600 text-white text-[7px] px-2 py-1 rounded-lg font-black uppercase">Kinee</span>
                 </div>
-                <div class="flex flex-col">
-                    <span class="text-2xl font-black italic tracking-tighter uppercase leading-none font-orbitron">
-                        Электро<span class="text-cyan-400">Пульс</span>
-                    </span>
-                    <span class="text-[9px] font-bold text-slate-500 tracking-[0.3em] uppercase">Ecosystem Kyrgyzstan</span>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Автомат DC 2P 63A KINEE</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">1 250 с.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
-            
-            <div class="flex items-center gap-10">
-                <div class="hidden lg:flex items-center gap-8 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    <a href="#" class="nav-link hover:text-white transition">Академия</a>
-                    <a href="#" class="nav-link hover:text-white transition">Биржа</a>
-                    <a href="#" class="nav-link hover:text-white transition">Магазин</a>
-                    <a href="#" class="nav-link hover:text-white transition">Общение</a>
+
+            <div class="product-card" data-cat="kabel" data-title="кабель ввгнг 3х1.5 гост">
+                <div class="aspect-square bg-gray-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-plug-circle-bolt text-4xl text-gray-200"></i>
                 </div>
-                <button class="bg-white text-black px-7 py-2.5 rounded-full font-black text-[10px] uppercase tracking-wider hover:bg-voltage-yellow transition-all">
-                    Войти
-                </button>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Кабель ВВГнг 3х1.5 ГОСТ</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">45 с/м.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="solnce" data-title="панель 550вт jinko">
+                <div class="aspect-square bg-yellow-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-solar-panel text-4xl text-yellow-200"></i>
+                </div>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Панель Jinko 550W</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">13 800 с.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="tool" data-title="стриппер pro-tools">
+                <div class="aspect-square bg-orange-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-scissors text-4xl text-orange-200"></i>
+                </div>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Стриппер Pro-Tools</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">950 с.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="kinee" data-title="узип dc 2p kinee">
+                <div class="aspect-square bg-blue-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-shield-halved text-4xl text-blue-200"></i>
+                </div>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">УЗИП DC 2P KINEE</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">1 850 с.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="kabel" data-title="сип-4 2х16 провод">
+                <div class="aspect-square bg-gray-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-bridge text-4xl text-gray-200"></i>
+                </div>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">СИП-4 2х16 ТУ</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">38 с/м.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="solnce" data-title="инвертор hybrid 5kw">
+                <div class="aspect-square bg-yellow-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-microchip text-4xl text-yellow-200"></i>
+                </div>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Инвертор 5кВт Hybrid</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">42 000 с.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="tool" data-title="мультиметр цифровой">
+                <div class="aspect-square bg-orange-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-gauge-high text-4xl text-orange-200"></i>
+                </div>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Мультиметр DT-9205</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">1 450 с.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="kinee" data-title="реле напряжения kinee">
+                <div class="aspect-square bg-blue-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-bolt-lightning text-4xl text-blue-200"></i>
+                </div>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Реле напряжения KINEE</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">1 600 с.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="kabel" data-title="гофра 25мм 50м">
+                <div class="aspect-square bg-gray-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-ring text-4xl text-gray-200"></i>
+                </div>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Гофра 25мм ПВХ (50м)</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">850 с.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="solnce" data-title="акб lifepo4 200ah">
+                <div class="aspect-square bg-yellow-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-battery-full text-4xl text-yellow-200"></i>
+                </div>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">АКБ LiFePO4 200Ah</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">64 000 с.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
+            </div>
+
+            <div class="product-card" data-cat="tool" data-title="шуруповерт аккумуляторный">
+                <div class="aspect-square bg-orange-50 rounded-2xl mb-3 flex items-center justify-center">
+                    <i class="fas fa-screwdriver text-4xl text-orange-200"></i>
+                </div>
+                <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Шуруповерт 21V</h3>
+                <div class="mt-auto pt-2">
+                    <span class="text-sm font-black text-blue-600">3 200 с.</span>
+                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                </div>
             </div>
         </div>
+    </section>
+
+    <!-- PAGE: CATALOG -->
+    <section id="page-catalog" class="page-section container mx-auto px-5 py-6">
+        <h2 class="catalog-header">Каталог товаров</h2>
+        <div class="grid grid-cols-1 gap-4">
+            <div onclick="applyFilterAndSwitch('all')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all">
+                <div class="w-14 h-14 bg-gray-100 text-gray-900 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-list"></i></div>
+                <div><h3 class="font-black text-sm uppercase">Все товары</h3></div>
+                <i class="fas fa-chevron-right ml-auto text-gray-200"></i>
+            </div>
+            <div onclick="applyFilterAndSwitch('kabel')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all">
+                <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-plug"></i></div>
+                <div><h3 class="font-black text-sm uppercase">Провода и кабели</h3><p class="text-[10px] text-gray-400 font-bold">ВВГ, ПВС, СИП</p></div>
+                <i class="fas fa-chevron-right ml-auto text-gray-200"></i>
+            </div>
+            <div onclick="applyFilterAndSwitch('kinee')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all">
+                <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-blue-100"><i class="fas fa-shield-bolt"></i></div>
+                <div><h3 class="font-black text-sm uppercase">Бренд KINEE</h3><p class="text-[10px] text-gray-400 font-bold">ЗАЩИТНАЯ АВТОМАТИКА</p></div>
+                <i class="fas fa-chevron-right ml-auto text-gray-200"></i>
+            </div>
+            <div onclick="applyFilterAndSwitch('solnce')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all">
+                <div class="w-14 h-14 bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-solar-panel"></i></div>
+                <div><h3 class="font-black text-sm uppercase">Солнечные системы</h3><p class="text-[10px] text-gray-400 font-bold uppercase">Энергия солнца</p></div>
+                <i class="fas fa-chevron-right ml-auto text-gray-200"></i>
+            </div>
+            <div onclick="applyFilterAndSwitch('tool')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all">
+                <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-tools"></i></div>
+                <div><h3 class="font-black text-sm uppercase">Инструмент</h3><p class="text-[10px] text-gray-400 font-bold uppercase">Для монтажа</p></div>
+                <i class="fas fa-chevron-right ml-auto text-gray-200"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE: PROFILE -->
+    <section id="page-profile" class="page-section container mx-auto px-5 py-6">
+        <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 mb-6 text-center">
+            <div class="w-24 h-24 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-[2rem] flex items-center justify-center text-white text-4xl font-black mx-auto mb-6 shadow-2xl shadow-blue-100">T</div>
+            <h2 class="text-2xl font-black uppercase tracking-tighter text-gray-900">Электрик Талас</h2>
+            <p class="text-sm text-gray-400 mb-8 font-medium">+996 755 000 228</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-50/50 p-5 rounded-3xl border border-gray-50">
+                    <span class="block text-2xl font-black text-blue-600">32</span>
+                    <span class="text-[9px] uppercase font-black text-gray-400">Визитов</span>
+                </div>
+                <div class="bg-gray-50/50 p-5 rounded-3xl border border-gray-50">
+                    <span class="block text-2xl font-black text-blue-600">0</span>
+                    <span class="text-[9px] uppercase font-black text-gray-400">Заказов</span>
+                </div>
+            </div>
+        </div>
+        <a href="https://wa.me/996755000228" class="w-full bg-green-500 text-white p-6 rounded-[2rem] flex justify-center items-center gap-3 font-black text-xs uppercase tracking-widest shadow-xl shadow-green-100 active:scale-95 transition-all">
+            <i class="fab fa-whatsapp text-2xl"></i> Написать в WhatsApp
+        </a>
+    </section>
+
+    <!-- BOTTOM NAV -->
+    <nav class="mobile-bottom-nav border-t bg-white/90 backdrop-blur-md">
+        <button onclick="switchPage('home')" class="nav-btn active-tab flex flex-col items-center gap-1.5 transition-all">
+            <i class="fas fa-home-alt text-lg"></i><span class="text-[8px] font-black uppercase tracking-tighter">Главная</span>
+        </button>
+        <button onclick="switchPage('catalog')" class="nav-btn flex flex-col items-center gap-1.5 text-gray-300 transition-all">
+            <i class="fas fa-layer-group text-lg"></i><span class="text-[8px] font-black uppercase tracking-tighter">Каталог</span>
+        </button>
+        <button class="flex flex-col items-center gap-1.5 text-gray-300 relative">
+            <div class="relative"><i class="fas fa-shopping-bag text-lg"></i><span class="absolute -top-1.5 -right-2 bg-blue-600 text-white text-[7px] font-black px-1.5 rounded-full border-2 border-white">0</span></div>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Корзина</span>
+        </button>
+        <button onclick="switchPage('profile')" class="nav-btn flex flex-col items-center gap-1.5 text-gray-300 transition-all">
+            <i class="fas fa-user-circle text-lg"></i><span class="text-[8px] font-black uppercase tracking-tighter">Профиль</span>
+        </button>
     </nav>
 
-    <!-- NEWS TICKER (НОВЫЙ БЛОК) -->
-    <div class="bg-cyan-900/20 border-y border-white/5 py-3 overflow-hidden">
-        <div class="news-track">
-            <!-- Дублируем контент для бесконечной ленты -->
-            <div class="flex gap-12 items-center px-6">
-                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fas fa-fire text-orange-500"></i> Новости: В Бишкеке открыт крупнейший склад Schneider Electric</span>
-                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
-                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-cyan-400"><i class="fas fa-star"></i> Обновление ПУЭ: Что изменилось в 2026 году?</span>
-                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
-                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fas fa-tools"></i> Поступление Milwaukee в магазин ЭлектроПульс</span>
-                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
-                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-voltage-yellow"><i class="fas fa-award"></i> Запущен конкурс "Электрик года КР" - Приз 100 000 сом</span>
-            </div>
-            <div class="flex gap-12 items-center px-6">
-                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fas fa-fire text-orange-500"></i> Новости: В Бишкеке открыт крупнейший склад Schneider Electric</span>
-                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
-                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-cyan-400"><i class="fas fa-star"></i> Обновление ПУЭ: Что изменилось в 2026 году?</span>
-                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
-                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"><i class="fas fa-tools"></i> Поступление Milwaukee в магазин ЭлектроПульс</span>
-                <span class="h-1 w-1 bg-slate-600 rounded-full"></span>
-                <span class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-voltage-yellow"><i class="fas fa-award"></i> Запущен конкурс "Электрик года КР" - Приз 100 000 сом</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <main class="max-w-7xl mx-auto px-6 pt-24 pb-32 text-center">
-        
-        <!-- HERO SECTION -->
-        <div class="max-w-4xl mx-auto space-y-12 mb-32 relative">
-            <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full glow-bg"></div>
+    <script>
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            const targetPage = document.getElementById('page-' + pageId);
+            if(targetPage) targetPage.classList.add('active');
             
-            <div class="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-5 py-2.5 rounded-full">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
-                </span>
-                <span class="text-white text-[10px] font-black uppercase tracking-[0.2em]">Сообщество профессионалов КР</span>
-            </div>
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                btn.classList.remove('active-tab');
+                btn.classList.add('text-gray-300');
+            });
 
-            <h1 class="text-7xl md:text-9xl font-black italic uppercase leading-[0.8] font-orbitron tracking-tighter">
-                Твой <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Главный</span><br>
-                Инструмент.
-            </h1>
+            if(pageId === 'home') navButtons[0].classList.add('active-tab');
+            if(pageId === 'catalog') navButtons[1].classList.add('active-tab');
+            if(pageId === 'profile') navButtons[3].classList.add('active-tab');
 
-            <p class="text-slate-400 text-xl md:text-2xl max-w-2xl mx-auto leading-relaxed font-light italic">
-                Единая платформа для электриков Кыргызстана. Работа, обучение и лучший инструмент в одном месте.
-            </p>
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-            <div class="flex flex-wrap justify-center gap-6">
-                <a href="#hub" class="px-14 py-6 bg-cyan-600 rounded-2xl text-black font-black uppercase text-sm tracking-tighter hover:bg-cyan-500 hover:scale-105 transition-all shadow-[0_0_40px_rgba(0,210,255,0.2)]">
-                    Начать работу
-                </a>
-                <a href="https://wa.me/996755000228" target="_blank" class="px-14 py-6 bg-white/5 border border-white/10 rounded-2xl font-black uppercase text-sm tracking-tighter hover:border-voltage-yellow transition-all flex items-center gap-3">
-                    <i class="fab fa-whatsapp text-green-500 text-xl"></i> Поддержка
-                </a>
-            </div>
-        </div>
+        function applyFilter(cat) {
+            const products = document.querySelectorAll('.product-card');
+            products.forEach(p => {
+                const productCat = p.getAttribute('data-cat');
+                if (cat === 'all' || productCat === cat) {
+                    p.style.display = 'flex';
+                } else {
+                    p.style.display = 'none';
+                }
+            });
+        }
 
-        <!-- THE HUB GRID -->
-        <div id="hub" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-32 text-left">
+        function applyFilterAndSwitch(cat) {
             
-            <!-- ACADEMY -->
-            <div class="hub-card p-10 rounded-[3.5rem] group h-[28rem] flex flex-col justify-between border-white/10">
-                <div>
-                    <div class="w-16 h-16 bg-cyan-500/10 rounded-2xl flex items-center justify-center text-cyan-400 text-3xl mb-8 group-hover:bg-cyan-500 group-hover:text-black transition-all">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <h3 class="text-3xl font-black uppercase italic mb-4 tracking-tighter font-orbitron">Академия</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Повышай квалификацию. Курсы по ПУЭ, сборке щитов и современным стандартам монтажа.</p>
-                </div>
-                <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-cyan-400">
-                    <span>12 Курсов</span>
-                    <i class="fas fa-arrow-right group-hover:translate-x-2 transition"></i>
-                </div>
-            </div>
-
-            <!-- JOBS -->
-            <div class="hub-card p-10 rounded-[3.5rem] group h-[28rem] flex flex-col justify-between border-voltage-yellow/20">
-                <div>
-                    <div class="w-16 h-16 bg-voltage-yellow/10 rounded-2xl flex items-center justify-center text-voltage-yellow text-3xl mb-8 group-hover:bg-voltage-yellow group-hover:text-black transition-all">
-                        <i class="fas fa-briefcase"></i>
-                    </div>
-                    <h3 class="text-3xl font-black uppercase italic mb-4 tracking-tighter font-orbitron">Биржа</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Заказы по всему Кыргызстану. От частных квартир до крупных промышленных тендеров.</p>
-                </div>
-                <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-voltage-yellow">
-                    <span>8 новых сегодня</span>
-                    <i class="fas fa-arrow-right group-hover:translate-x-2 transition"></i>
-                </div>
-            </div>
-
-            <!-- MARKET -->
-            <div class="hub-card p-10 rounded-[3.5rem] group h-[28rem] flex flex-col justify-between border-green-500/10">
-                <div>
-                    <div class="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-400 text-3xl mb-8 group-hover:bg-green-500 group-hover:text-black transition-all">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <h3 class="text-3xl font-black uppercase italic mb-4 tracking-tighter font-orbitron leading-none">Магазин <br><span class="text-sm font-light">для электриков</span></h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Профессиональный инструмент и расходники по ценам для "своих". Спецпредложения для участников клуба.</p>
-                </div>
-                <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-green-400">
-                    <span>Скидки до 30%</span>
-                    <i class="fas fa-arrow-right group-hover:translate-x-2 transition"></i>
-                </div>
-            </div>
-
-            <!-- FORUM -->
-            <div class="hub-card p-10 rounded-[3.5rem] group h-[28rem] flex flex-col justify-between border-purple-500/10">
-                <div>
-                    <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center text-purple-400 text-3xl mb-8 group-hover:bg-purple-500 group-hover:text-black transition-all">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <h3 class="text-3xl font-black uppercase italic mb-4 tracking-tighter font-orbitron">Общение</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Форум и профессиональные чаты. Делись опытом, спрашивай совета и находи единомышленников в КР.</p>
-                </div>
-                <div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-purple-400">
-                    <span>150 Тем сегодня</span>
-                    <i class="fas fa-arrow-right group-hover:translate-x-2 transition"></i>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- БЛОК СТАТЕЙ И ОБНОВЛЕНИЙ (ДОПОЛНИТЕЛЬНО) -->
-        <div class="grid md:grid-cols-3 gap-8 mb-32 text-left">
-            <div class="md:col-span-2 space-y-6">
-                <h2 class="text-2xl font-black uppercase font-orbitron text-white">Последние статьи</h2>
-                <div class="group cursor-pointer bg-white/5 border border-white/10 p-6 rounded-3xl hover:border-cyan-400 transition">
-                    <p class="text-[10px] text-cyan-400 font-bold uppercase mb-2">Технологии • 2 часа назад</p>
-                    <h4 class="text-xl font-bold mb-3 group-hover:text-cyan-400 transition">Почему заземление в новостройках Бишкека часто не работает?</h4>
-                    <p class="text-sm text-slate-500">Разбираем типичные ошибки застройщиков и способы их исправления своими силами...</p>
-                </div>
-                <div class="group cursor-pointer bg-white/5 border border-white/10 p-6 rounded-3xl hover:border-cyan-400 transition">
-                    <p class="text-[10px] text-voltage-yellow font-bold uppercase mb-2">Обзор • Вчера</p>
-                    <h4 class="text-xl font-bold mb-3 group-hover:text-voltage-yellow transition">ТОП-5 мультиметров до 5000 сом: Что выбрать мастеру?</h4>
-                    <p class="text-sm text-slate-500">Сравнительный тест точности и надежности популярных моделей на рынке КР...</p>
-                </div>
-            </div>
-            <div class="space-y-6">
-                <h2 class="text-2xl font-black uppercase font-orbitron text-white">Обновления</h2>
-                <div class="bg-white/5 border border-white/10 p-6 rounded-3xl">
-                    <ul class="space-y-4">
-                        <li class="flex gap-3">
-                            <div class="w-1.5 h-1.5 bg-green-500 rounded-full mt-1.5"></div>
-                            <p class="text-xs text-slate-400"><span class="text-white font-bold">Биржа:</span> Добавлены фильтры по районам Бишкека.</p>
-                        </li>
-                        <li class="flex gap-3">
-                            <div class="w-1.5 h-1.5 bg-green-500 rounded-full mt-1.5"></div>
-                            <p class="text-xs text-slate-400"><span class="text-white font-bold">Магазин:</span> Теперь доступна оплата через MBANK.</p>
-                        </li>
-                        <li class="flex gap-3">
-                            <div class="w-1.5 h-1.5 bg-cyan-500 rounded-full mt-1.5"></div>
-                            <p class="text-xs text-slate-400"><span class="text-white font-bold">Академия:</span> Загружен новый урок по ПЛК.</p>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="border-t border-white/5 py-24 px-6 bg-black">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-20 items-center">
-            <div class="text-left space-y-6">
-                <div class="flex items-center gap-3">
-                    <div class="bg-voltage-yellow p-1.5 rounded-lg">
-                        <i class="fas fa-bolt text-black text-xl"></i>
-                    </div>
-                    <p class="text-2xl font-black font-orbitron uppercase italic">Электро<span class="text-cyan-400">Пульс</span></p>
-                </div>
-                <p class="text-xs text-slate-500 uppercase tracking-widest leading-loose">
-                    Цифровая экосистема электромонтажников<br>Кыргызской Республики 2026.
-                </p>
-            </div>
-            
-            <div class="flex justify-center gap-8">
-                <a href="https://instagram.com/ta07as.a" target="_blank" class="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center text-2xl hover:bg-pink-600 hover:text-white transition-all"><i class="fab fa-instagram"></i></a>
-                <a href="https://t.me/ta07as" target="_blank" class="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center text-2xl hover:bg-cyan-600 hover:text-white transition-all"><i class="fab fa-telegram"></i></a>
-                <a href="https://wa.me/996755000228" target="_blank" class="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center text-2xl hover:bg-green-600 hover:text-white transition-all"><i class="fab fa-whatsapp"></i></a>
-            </div>
-
-            <div class="text-right space-y-2">
-                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Прямая связь</p>
-                <a href="tel:+996755000228" class="text-3xl font-black text-white hover:text-cyan-400 transition font-orbitron">+996 755 000 228</a>
-                <p class="text-[9px] text-slate-700 uppercase mt-4">Bishkek, KG</p>
-            </div>
-        </div>
-    </footer>
-
-</body>
-</html>
-
