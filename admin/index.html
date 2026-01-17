@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalasPro — Super Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .admin-card { background: white; border-radius: 1.5rem; border: 1px solid #f3f4f6; padding: 1.5rem; }
+        .input-field { width: 100%; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; font-size: 14px; outline: none; }
+        .input-field:focus { border-color: #3b82f6; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 pb-20">
+
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+    <header class="bg-gray-950 text-white sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm font-black uppercase tracking-tighter leading-none">TalasPro</h1>
+                    <span class="text-[10px] text-gray-400 uppercase font-bold">Admin Panel</span>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="switchTab('stats')" class="nav-btn text-blue-500"><i class="fas fa-chart-pie"></i></button>
+                <button onclick="switchTab('cats')" class="nav-btn text-gray-400"><i class="fas fa-tags"></i></button>
+                <button onclick="switchTab('users')" class="nav-btn text-gray-400"><i class="fas fa-users"></i></button>
+                <button onclick="switchTab('settings')" class="nav-btn text-gray-400"><i class="fas fa-cog"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6">
+        
+        <!-- ВКЛАДКА: ГЛАВНАЯ И ТОВАРЫ -->
+        <div id="tab-stats" class="tab-content active">
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="admin-card text-center">
+                    <span class="block text-2xl font-black text-blue-600" id="stat-prods">0</span>
+                    <span class="text-[9px] uppercase font-bold text-gray-400">Товаров</span>
+                </div>
+                <div class="admin-card text-center">
+                    <span class="block text-2xl font-black text-green-600" id="stat-total">0</span>
+                    <span class="text-[9px] uppercase font-bold text-gray-400">Склад (сом)</span>
+                </div>
+            </div>
+
+            <!-- Форма товара -->
+            <div class="admin-card mb-8 shadow-sm">
+                <h3 class="font-black uppercase text-xs mb-4 flex items-center gap-2">
+                    <i class="fas fa-plus-circle text-blue-600"></i> Добавить товар
+                </h3>
+                <div class="space-y-3">
+                    <input type="text" id="p-title" placeholder="Название товара" class="input-field">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="p-price" placeholder="Цена" class="input-field">
+                        <select id="p-cat" class="input-field">
+                            <!-- Сюда подгрузятся категории -->
+                        </select>
+                    </div>
+                    <button onclick="addProduct()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg">Опубликовать</button>
+                </div>
+            </div>
+
+            <div id="admin-product-list" class="space-y-3">
+                <div class="text-center py-10 text-gray-300"><i class="fas fa-spinner fa-spin"></i></div>
+            </div>
+        </div>
+
+        <!-- ВКЛАДКА: КАТЕГОРИИ -->
+        <div id="tab-cats" class="tab-content">
+            <h2 class="font-black uppercase text-lg mb-6 tracking-tighter">Управление разделами</h2>
+            <div class="admin-card mb-6">
+                <div class="flex gap-2">
+                    <input type="text" id="cat-name" placeholder="Название (напр. Розетки)" class="input-field">
+                    <input type="text" id="cat-id" placeholder="ID (лат)" class="input-field w-1/3">
+                </div>
+                <button onclick="addCategory()" class="w-full bg-gray-900 text-white py-4 rounded-xl font-black uppercase text-[10px] mt-3">Создать категорию</button>
+            </div>
+            <div id="admin-cat-list" class="space-y-2"></div>
+        </div>
+
+        <!-- ВКЛАДКА: ПОЛЬЗОВАТЕЛИ -->
+        <div id="tab-users" class="tab-content">
+            <div class="flex justify-between items-end mb-6">
+                <h2 class="font-black uppercase text-lg">Клиентская база</h2>
+                <div class="text-[10px] font-bold text-green-500 uppercase"><i class="fas fa-circle mr-1 text-[8px]"></i> <span id="stat-online">0</span> ONLINE</div>
+            </div>
+            <div id="user-list" class="space-y-3"></div>
+        </div>
+
+        <!-- ВКЛАДКА: НАСТРОЙКИ САЙТА -->
+        <div id="tab-settings" class="tab-content">
+            <h2 class="font-black uppercase text-lg mb-6 tracking-tighter">Внешний вид сайта</h2>
+            <div class="admin-card">
+                <label class="block text-[10px] font-black uppercase text-gray-400 mb-2">Название в шапке</label>
+                <input type="text" id="site-title" class="input-field mb-4">
+                
+                <label class="block text-[10px] font-black uppercase text-gray-400 mb-2">Текст акции/объявления</label>
+                <textarea id="site-alert" class="input-field mb-4" rows="3"></textarea>
+                
+                <button onclick="saveSettings()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase text-[10px]">Сохранить всё</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- УВЕДОМЛЕНИЯ -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase hidden z-[100] shadow-2xl"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'talas-pro-v1';
+
+        let products = [];
+        let categories = [];
+        let users = [];
+
+        // Авторизация
+        signInAnonymously(auth).then(() => {
+            listenToDatabase();
+        });
+
+        function listenToDatabase() {
+            // Слушаем товары
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'products'), snap => {
+                products = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderProducts();
+                updateStats();
+            }, err => console.error(err));
+
+            // Слушаем категории
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'categories'), snap => {
+                categories = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderCategories();
+            });
+
+            // Слушаем пользователей
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'users'), snap => {
+                users = snap.docs.map(d => d.data());
+                renderUsers();
+            });
+
+            // Слушаем настройки
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), snap => {
+                if(snap.exists()){
+                    document.getElementById('site-title').value = snap.data().title || "Электрик Талас";
+                    document.getElementById('site-alert').value = snap.data().alert || "";
+                }
+            });
+        }
+
+        // --- ДЕЙСТВИЯ ---
+        window.addProduct = async () => {
+            const title = document.getElementById('p-title').value;
+            const price = parseInt(document.getElementById('p-price').value);
+            const cat = document.getElementById('p-cat').value;
+            if(!title || !price) return showToast("Заполни данные!");
+            
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'products'), {
+                title, price, cat, createdAt: Date.now()
+            });
+            
+            document.getElementById('p-title').value = '';
+            document.getElementById('p-price').value = '';
+            showToast("Товар на витрине!");
+        };
+
+        window.addCategory = async () => {
+            const name = document.getElementById('cat-name').value;
+            const id = document.getElementById('cat-id').value || Date.now().toString();
+            if(!name) return showToast("Имя категории?");
+            
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'categories', id), { name });
+            document.getElementById('cat-name').value = '';
+            document.getElementById('cat-id').value = '';
+            showToast("Категория создана!");
+        };
+
+        window.deleteItem = async (col, id) => {
+            if(confirm("Удалить навсегда?")){
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', col, id));
+                showToast("Удалено");
+            }
+        };
+
+        window.saveSettings = async () => {
+            const title = document.getElementById('site-title').value;
+            const alert = document.getElementById('site-alert').value;
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'global'), { title, alert });
+            showToast("Сайт обновлен!");
+        };
+
+        // --- ОТРИСОВКА ---
+        function renderProducts() {
+            const list = document.getElementById('admin-product-list');
+            list.innerHTML = '';
+            products.sort((a,b) => b.createdAt - a.createdAt).forEach(p => {
+                const div = document.createElement('div');
+                div.className = "admin-card flex justify-between items-center py-4";
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-300 text-xs"><i class="fas fa-box"></i></div>
+                        <div>
+                            <p class="text-[11px] font-bold uppercase">${p.title}</p>
+                            <p class="text-[10px] text-blue-600 font-black">${p.price} сом <span class="text-gray-300 ml-2 font-medium">${p.cat}</span></p>
+                        </div>
+                    </div>
+                    <button onclick="deleteItem('products', '${p.id}')" class="text-red-400 p-2"><i class="fas fa-trash"></i></button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function renderCategories() {
+            const list = document.getElementById('admin-cat-list');
+            const select = document.getElementById('p-cat');
+            list.innerHTML = ''; select.innerHTML = '';
+            categories.forEach(c => {
+                const opt = new Option(c.name, c.id);
+                select.add(opt);
+                
+                const div = document.createElement('div');
+                div.className = "admin-card flex justify-between items-center py-3";
+                div.innerHTML = `<span class="text-xs font-bold uppercase">${c.name} <small class="text-gray-400 ml-2">${c.id}</small></span>
+                                 <button onclick="deleteItem('categories', '${c.id}')" class="text-red-400"><i class="fas fa-times"></i></button>`;
+                list.appendChild(div);
+            });
+        }
+
+        function renderUsers() {
+            const list = document.getElementById('user-list');
+            list.innerHTML = '';
+            let onlineCount = 0;
+            users.forEach(u => {
+                const isOnline = (Date.now() - u.lastSeen) < 300000; // 5 мин
+                if(isOnline) onlineCount++;
+                const div = document.createElement('div');
+                div.className = "admin-card flex justify-between items-center";
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 ${isOnline ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'} rounded-full flex items-center justify-center font-bold text-xs">
+                            ${u.uid.substring(0,2).toUpperCase()}
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black uppercase">Код: ${u.uid.substring(0,8)}</p>
+                            <p class="text-[9px] text-gray-400">${u.phone || '+996 XXX XX XX'}</p>
+                        </div>
+                    </div>
+                    <span class="text-[8px] font-bold text-gray-300 uppercase">${new Date(u.lastSeen).toLocaleTimeString()}</span>
+                `;
+                list.appendChild(div);
+            });
+            document.getElementById('stat-online').innerText = onlineCount;
+        }
+
+        function updateStats() {
+            document.getElementById('stat-prods').innerText = products.length;
+            const sum = products.reduce((a,b) => a + (b.price || 0), 0);
+            document.getElementById('stat-total').innerText = sum.toLocaleString();
+        }
+
+        window.switchTab = (id) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-'+id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-blue-500', 'text-gray-400'));
+            event.currentTarget.classList.replace('text-gray-400', 'text-blue-500');
+        };
+
+        function showToast(text) {
+            const t = document.getElementById('toast');
+            t.innerText = text; t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 2000);
+        }
+    </script>
+</body>
+</html>
