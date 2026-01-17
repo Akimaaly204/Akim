@@ -27,7 +27,7 @@
             padding: 12px;
         }
         
-        .product-card:hover { transform: translateY(-3px); border-color: #3b82f6; }
+        .product-card:hover { border-color: #3b82f6; }
         
         .mobile-bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
@@ -42,9 +42,8 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Оптимизированный заголовок каталога */
         .catalog-header {
-            font-size: 1.75rem; /* Уменьшен размер букв */
+            font-size: 1.75rem;
             line-height: 1.2;
             font-weight: 900;
             letter-spacing: -0.02em;
@@ -53,11 +52,21 @@
             color: #111827;
             text-transform: uppercase;
         }
+        
+        /* Notification for cart */
+        #cart-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #111827; color: white; padding: 12px 24px;
+            border-radius: 15px; font-size: 12px; font-weight: bold;
+            display: none; z-index: 1000;
+        }
     </style>
 </head>
 <body class="bg-gray-50 pb-24 text-gray-900">
 
-    <!-- HEADER (Без фильтров) -->
+    <div id="cart-toast">Товар добавлен в корзину</div>
+
+    <!-- HEADER -->
     <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
         <div class="bg-gray-950 text-white text-[10px] py-2.5 px-4 flex justify-between items-center font-bold uppercase tracking-[0.2em]">
             <span><i class="fas fa-location-dot text-blue-500 mr-1.5"></i> ТАЛАС</span>
@@ -65,11 +74,11 @@
         </div>
 
         <nav class="py-4 px-4 flex items-center gap-3">
-            <div onclick="switchPage('home')" class="bg-blue-600 text-white w-11 h-11 flex items-center justify-center rounded-2xl shadow-lg shadow-blue-100 cursor-pointer active:scale-90 transition-transform">
+            <div onclick="switchPage('home')" class="bg-blue-600 text-white min-w-[44px] h-11 flex items-center justify-center rounded-2xl shadow-lg shadow-blue-100 cursor-pointer active:scale-90 transition-transform">
                 <i class="fas fa-bolt text-xl"></i>
             </div>
             <div class="flex-grow relative">
-                <input type="text" id="globalSearch" onkeyup="handleSearch()" placeholder="Поиск товара..." class="w-full bg-gray-100 border-none rounded-2xl py-3 px-5 text-sm outline-none focus:ring-2 focus:ring-blue-600/20 transition-all">
+                <input type="text" id="globalSearch" oninput="handleSearch()" placeholder="Поиск товара..." class="w-full bg-gray-100 border-none rounded-2xl py-3 px-5 text-sm outline-none focus:ring-2 focus:ring-blue-600/20 transition-all">
                 <i class="fas fa-search absolute right-4 top-3.5 text-gray-300"></i>
             </div>
         </nav>
@@ -78,9 +87,8 @@
     <!-- PAGE: HOME -->
     <section id="page-home" class="page-section active container mx-auto px-3 py-4">
         <div id="productGrid" class="product-grid">
-            
             <!-- 12 товаров -->
-            <div class="product-card" data-cat="kinee" data-title="автомат dc kinee 2p 63a">
+            <div class="product-card" data-cat="kinee" data-title="автомат dc kinee 2p 63a щиток защита">
                 <div class="aspect-square bg-blue-50 rounded-2xl mb-3 flex items-center justify-center relative">
                     <i class="fas fa-toggle-on text-4xl text-blue-200"></i>
                     <span class="absolute top-2 left-2 bg-blue-600 text-white text-[7px] px-2 py-1 rounded-lg font-black uppercase">Kinee</span>
@@ -88,128 +96,128 @@
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Автомат DC 2P 63A KINEE</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">1 250 с.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="kabel" data-title="кабель ввгнг 3х1.5 гост">
+            <div class="product-card" data-cat="kabel" data-title="кабель ввгнг 3х1.5 гост провод медь">
                 <div class="aspect-square bg-gray-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-plug-circle-bolt text-4xl text-gray-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Кабель ВВГнг 3х1.5 ГОСТ</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">45 с/м.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="solnce" data-title="панель 550вт jinko">
+            <div class="product-card" data-cat="solnce" data-title="панель 550вт jinko солнечная энергия">
                 <div class="aspect-square bg-yellow-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-solar-panel text-4xl text-yellow-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Панель Jinko 550W</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">13 800 с.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="tool" data-title="стриппер pro-tools">
+            <div class="product-card" data-cat="tool" data-title="стриппер pro-tools инструмент зачистка">
                 <div class="aspect-square bg-orange-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-scissors text-4xl text-orange-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Стриппер Pro-Tools</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">950 с.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="kinee" data-title="узип dc 2p kinee">
+            <div class="product-card" data-cat="kinee" data-title="узип dc 2p kinee защита гроза">
                 <div class="aspect-square bg-blue-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-shield-halved text-4xl text-blue-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">УЗИП DC 2P KINEE</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">1 850 с.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="kabel" data-title="сип-4 2х16 провод">
+            <div class="product-card" data-cat="kabel" data-title="сип-4 2х16 провод уличный алюминий">
                 <div class="aspect-square bg-gray-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-bridge text-4xl text-gray-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">СИП-4 2х16 ТУ</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">38 с/м.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="solnce" data-title="инвертор hybrid 5kw">
+            <div class="product-card" data-cat="solnce" data-title="инвертор hybrid 5kw солнечный преобразователь">
                 <div class="aspect-square bg-yellow-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-microchip text-4xl text-yellow-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Инвертор 5кВт Hybrid</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">42 000 с.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="tool" data-title="мультиметр цифровой">
+            <div class="product-card" data-cat="tool" data-title="мультиметр цифровой тестер замер">
                 <div class="aspect-square bg-orange-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-gauge-high text-4xl text-orange-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Мультиметр DT-9205</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">1 450 с.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="kinee" data-title="реле напряжения kinee">
+            <div class="product-card" data-cat="kinee" data-title="реле напряжения kinee защита вольт">
                 <div class="aspect-square bg-blue-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-bolt-lightning text-4xl text-blue-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Реле напряжения KINEE</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">1 600 с.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="kabel" data-title="гофра 25мм 50м">
+            <div class="product-card" data-cat="kabel" data-title="гофра 25мм 50м труба защита">
                 <div class="aspect-square bg-gray-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-ring text-4xl text-gray-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Гофра 25мм ПВХ (50м)</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">850 с.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="solnce" data-title="акб lifepo4 200ah">
+            <div class="product-card" data-cat="solnce" data-title="акб lifepo4 200ah аккумулятор батарея">
                 <div class="aspect-square bg-yellow-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-battery-full text-4xl text-yellow-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">АКБ LiFePO4 200Ah</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">64 000 с.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
 
-            <div class="product-card" data-cat="tool" data-title="шуруповерт аккумуляторный">
+            <div class="product-card" data-cat="tool" data-title="шуруповерт аккумуляторный дрель монтаж">
                 <div class="aspect-square bg-orange-50 rounded-2xl mb-3 flex items-center justify-center">
                     <i class="fas fa-screwdriver text-4xl text-orange-200"></i>
                 </div>
                 <h3 class="font-bold text-[11px] text-gray-800 line-clamp-2 h-8 leading-tight">Шуруповерт 21V</h3>
                 <div class="mt-auto pt-2">
                     <span class="text-sm font-black text-blue-600">3 200 с.</span>
-                    <button class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2">Купить</button>
+                    <button onclick="addToCart()" class="w-full bg-gray-900 text-white py-2.5 rounded-xl text-[9px] font-black uppercase mt-2 active:scale-95 transition-transform">Купить</button>
                 </div>
             </div>
         </div>
@@ -219,27 +227,27 @@
     <section id="page-catalog" class="page-section container mx-auto px-5 py-6">
         <h2 class="catalog-header">Каталог товаров</h2>
         <div class="grid grid-cols-1 gap-4">
-            <div onclick="applyFilterAndSwitch('all')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all">
+            <div onclick="applyFilterAndSwitch('all')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all cursor-pointer">
                 <div class="w-14 h-14 bg-gray-100 text-gray-900 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-list"></i></div>
                 <div><h3 class="font-black text-sm uppercase">Все товары</h3></div>
                 <i class="fas fa-chevron-right ml-auto text-gray-200"></i>
             </div>
-            <div onclick="applyFilterAndSwitch('kabel')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all">
+            <div onclick="applyFilterAndSwitch('kabel')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all cursor-pointer">
                 <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-plug"></i></div>
                 <div><h3 class="font-black text-sm uppercase">Провода и кабели</h3><p class="text-[10px] text-gray-400 font-bold">ВВГ, ПВС, СИП</p></div>
                 <i class="fas fa-chevron-right ml-auto text-gray-200"></i>
             </div>
-            <div onclick="applyFilterAndSwitch('kinee')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all">
+            <div onclick="applyFilterAndSwitch('kinee')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all cursor-pointer">
                 <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-blue-100"><i class="fas fa-shield-bolt"></i></div>
                 <div><h3 class="font-black text-sm uppercase">Бренд KINEE</h3><p class="text-[10px] text-gray-400 font-bold">ЗАЩИТНАЯ АВТОМАТИКА</p></div>
                 <i class="fas fa-chevron-right ml-auto text-gray-200"></i>
             </div>
-            <div onclick="applyFilterAndSwitch('solnce')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all">
+            <div onclick="applyFilterAndSwitch('solnce')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all cursor-pointer">
                 <div class="w-14 h-14 bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-solar-panel"></i></div>
                 <div><h3 class="font-black text-sm uppercase">Солнечные системы</h3><p class="text-[10px] text-gray-400 font-bold uppercase">Энергия солнца</p></div>
                 <i class="fas fa-chevron-right ml-auto text-gray-200"></i>
             </div>
-            <div onclick="applyFilterAndSwitch('tool')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all">
+            <div onclick="applyFilterAndSwitch('tool')" class="bg-white p-6 rounded-[2rem] flex items-center gap-6 border border-gray-100 shadow-sm active:scale-95 transition-all cursor-pointer">
                 <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner"><i class="fas fa-tools"></i></div>
                 <div><h3 class="font-black text-sm uppercase">Инструмент</h3><p class="text-[10px] text-gray-400 font-bold uppercase">Для монтажа</p></div>
                 <i class="fas fa-chevron-right ml-auto text-gray-200"></i>
@@ -259,7 +267,7 @@
                     <span class="text-[9px] uppercase font-black text-gray-400">Визитов</span>
                 </div>
                 <div class="bg-gray-50/50 p-5 rounded-3xl border border-gray-50">
-                    <span class="block text-2xl font-black text-blue-600">0</span>
+                    <span class="block text-2xl font-black text-blue-600" id="orders-count">0</span>
                     <span class="text-[9px] uppercase font-black text-gray-400">Заказов</span>
                 </div>
             </div>
@@ -272,50 +280,20 @@
     <!-- BOTTOM NAV -->
     <nav class="mobile-bottom-nav border-t bg-white/90 backdrop-blur-md">
         <button onclick="switchPage('home')" class="nav-btn active-tab flex flex-col items-center gap-1.5 transition-all">
-            <i class="fas fa-home-alt text-lg"></i><span class="text-[8px] font-black uppercase tracking-tighter">Главная</span>
+            <i class="fas fa-home-alt text-lg"></i>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Главная</span>
         </button>
         <button onclick="switchPage('catalog')" class="nav-btn flex flex-col items-center gap-1.5 text-gray-300 transition-all">
-            <i class="fas fa-layer-group text-lg"></i><span class="text-[8px] font-black uppercase tracking-tighter">Каталог</span>
+            <i class="fas fa-layer-group text-lg"></i>
+            <span class="text-[8px] font-black uppercase tracking-tighter">Каталог</span>
         </button>
-        <button class="flex flex-col items-center gap-1.5 text-gray-300 relative">
-            <div class="relative"><i class="fas fa-shopping-bag text-lg"></i><span class="absolute -top-1.5 -right-2 bg-blue-600 text-white text-[7px] font-black px-1.5 rounded-full border-2 border-white">0</span></div>
+        <button onclick="switchPage('home')" class="nav-btn flex flex-col items-center gap-1.5 text-gray-300 relative transition-all">
+            <div class="relative">
+                <i class="fas fa-shopping-bag text-lg"></i>
+                <span id="cart-badge" class="absolute -top-1.5 -right-2 bg-blue-600 text-white text-[7px] font-black px-1.5 rounded-full border-2 border-white">0</span>
+            </div>
             <span class="text-[8px] font-black uppercase tracking-tighter">Корзина</span>
         </button>
         <button onclick="switchPage('profile')" class="nav-btn flex flex-col items-center gap-1.5 text-gray-300 transition-all">
-            <i class="fas fa-user-circle text-lg"></i><span class="text-[8px] font-black uppercase tracking-tighter">Профиль</span>
-        </button>
-    </nav>
-
-    <script>
-        function switchPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-            const targetPage = document.getElementById('page-' + pageId);
-            if(targetPage) targetPage.classList.add('active');
-            
-            const navButtons = document.querySelectorAll('.nav-btn');
-            navButtons.forEach(btn => {
-                btn.classList.remove('active-tab');
-                btn.classList.add('text-gray-300');
-            });
-
-            if(pageId === 'home') navButtons[0].classList.add('active-tab');
-            if(pageId === 'catalog') navButtons[1].classList.add('active-tab');
-            if(pageId === 'profile') navButtons[3].classList.add('active-tab');
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function applyFilter(cat) {
-            const products = document.querySelectorAll('.product-card');
-            products.forEach(p => {
-                const productCat = p.getAttribute('data-cat');
-                if (cat === 'all' || productCat === cat) {
-                    p.style.display = 'flex';
-                } else {
-                    p.style.display = 'none';
-                }
-            });
-        }
-
-        function applyFilterAndSwitch(cat) {
-            
+            <i class="fas fa-user-circle text-lg"></i>
+            <span class="text-[8px] font-black uppercase tracking-tighte
