@@ -108,11 +108,14 @@ const CART_KEY='talaspro_cart';
 const ADMIN_PIN='2409';
 
 let allProducts=[
-{id:'1',title:'Автомат KINEE 2P 63A',price:1250,cat:'kinee'},
-{id:'2',title:'Кабель ВВГнг 3х2.5',price:85,cat:'kabel'},
-{id:'3',title:'УЗИП KINEE',price:1800,cat:'kinee'},
-{id:'4',title:'Инвертор 5kW',price:42000,cat:'solnce'}
-];
+let allProducts = [];
+
+fetch('./data/products.json')
+  .then(r => r.json())
+  .then(d => {
+    allProducts = d;
+    renderProducts(allProducts);
+  });
 let cart=[];
 let clicks=0;
 
