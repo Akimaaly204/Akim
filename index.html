@@ -1,271 +1,202 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TalasPro — Магазин Электрики</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .page-section { display: none; }
-        .page-section.active { display: block !important; }
-        .nav-btn.active-tab { color: #2563eb !important; }
-        /* Плавное появление */
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TalasPro — Магазин электрики</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+body { font-family: Inter, sans-serif; -webkit-tap-highlight-color: transparent; }
+.page-section { display:none }
+.page-section.active { display:block }
+.nav-btn.active-tab { color:#2563eb }
+.fade-in { animation:fade .25s ease }
+@keyframes fade { from{opacity:0;transform:translateY(6px)} to{opacity:1} }
+</style>
 </head>
+
 <body class="bg-gray-50 pb-24 text-gray-950">
 
-    <!-- Тост-уведомление -->
-    <div id="cart-toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase z-[3000] hidden">Добавлено в корзину</div>
+<!-- TOAST -->
+<div id="cart-toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase z-[3000] hidden">
+Добавлено в корзину
+</div>
 
-    <!-- Шапка -->
-    <header class="sticky top-0 z-[1000] bg-white border-b border-gray-100 shadow-sm">
-        <div class="bg-blue-600 text-white text-[9px] py-2 px-4 flex justify-between font-black uppercase tracking-widest">
-            <span><i class="fas fa-bolt mr-1"></i> TalasPro</span>
-            <span>+996 755 000 228</span>
-        </div>
-        <div class="p-4 flex gap-3 items-center">
-            <button onclick="switchPage('home', this)" class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg"><i class="fas fa-home"></i></button>
-            <input type="text" id="globalSearch" oninput="handleSearch()" placeholder="Поиск товара..." class="flex-grow bg-gray-100 border-none rounded-xl py-2.5 px-4 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
-    </header>
+<!-- HEADER -->
+<header class="sticky top-0 bg-white border-b shadow-sm z-[1000]">
+<div class="bg-blue-600 text-white text-[9px] py-2 px-4 flex justify-between font-black uppercase tracking-widest">
+<span><i class="fas fa-bolt"></i> TalasPro</span>
+<span>+996 755 000 228</span>
+</div>
+<div class="p-4 flex gap-3 items-center">
+<button onclick="switchPage('home',this)" class="w-10 h-10 bg-blue-600 rounded-xl text-white">
+<i class="fas fa-home"></i>
+</button>
+<input id="globalSearch" oninput="handleSearch()" placeholder="Поиск товара..."
+class="flex-grow bg-gray-100 rounded-xl py-2.5 px-4 text-sm outline-none">
+</div>
+</header>
 
-    <!-- Главная (Витрина) -->
-    <section id="page-home" class="page-section active px-3 py-4 fade-in">
-        <div id="productGrid" class="grid grid-cols-2 gap-3">
-            <div class="col-span-2 text-center py-20 text-gray-400 text-[10px] font-bold uppercase">Загрузка витрины...</div>
-        </div>
-    </section>
+<!-- HOME -->
+<section id="page-home" class="page-section active px-3 py-4 fade-in">
+<div id="productGrid" class="grid grid-cols-2 gap-3"></div>
+</section>
 
-    <!-- Каталог (Категории) -->
-    <section id="page-catalog" class="page-section px-5 py-6 fade-in">
-        <h2 class="text-xl font-black uppercase mb-6 tracking-tight">Категории</h2>
-        <div class="grid gap-3">
-            <div onclick="filterByCategory('all')" class="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 shadow-sm active:scale-95 transition-transform">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600"><i class="fas fa-border-all"></i></div>
-                <span class="font-black text-[11px] uppercase">Все товары</span>
-            </div>
-            <div onclick="filterByCategory('kinee')" class="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 shadow-sm active:scale-95 transition-transform">
-                <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600"><i class="fas fa-shield-alt"></i></div>
-                <span class="font-black text-[11px] uppercase">Автоматика KINEE</span>
-            </div>
-            <div onclick="filterByCategory('kabel')" class="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 shadow-sm active:scale-95 transition-transform">
-                <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600"><i class="fas fa-plug"></i></div>
-                <span class="font-black text-[11px] uppercase">Кабель и Провод</span>
-            </div>
-            <div onclick="filterByCategory('solnce')" class="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 shadow-sm active:scale-95 transition-transform">
-                <div class="w-10 h-10 bg-yellow-50 rounded-lg flex items-center justify-center text-yellow-600"><i class="fas fa-sun"></i></div>
-                <span class="font-black text-[11px] uppercase">Солнечные системы</span>
-            </div>
-        </div>
-    </section>
+<!-- CATALOG -->
+<section id="page-catalog" class="page-section px-5 py-6 fade-in">
+<h2 class="text-xl font-black uppercase mb-6">Категории</h2>
+<div class="grid gap-3">
+<div onclick="filterByCategory('all')" class="bg-white p-5 rounded-2xl shadow">Все товары</div>
+<div onclick="filterByCategory('kinee')" class="bg-white p-5 rounded-2xl shadow">Автоматика KINEE</div>
+<div onclick="filterByCategory('kabel')" class="bg-white p-5 rounded-2xl shadow">Кабель</div>
+<div onclick="filterByCategory('solnce')" class="bg-white p-5 rounded-2xl shadow">Солнечные системы</div>
+</div>
+</section>
 
-    <!-- Заказ (Корзина) -->
-    <section id="page-cart" class="page-section px-5 py-6 fade-in">
-        <h2 class="text-xl font-black uppercase mb-6">Ваш заказ</h2>
-        <div id="cart-items" class="space-y-3 mb-6"></div>
-        <div id="cart-footer" class="hidden">
-            <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm mb-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-black uppercase text-gray-400">Итого к оплате:</span>
-                    <span id="cart-total" class="text-xl font-black text-blue-600">0 сом</span>
-                </div>
-            </div>
-            <button onclick="sendOrder()" class="w-full bg-green-500 text-white py-5 rounded-2xl font-black uppercase text-xs shadow-lg active:scale-95 transition-transform">
-                <i class="fab fa-whatsapp mr-2 text-lg"></i> Отправить в WhatsApp
-            </button>
-        </div>
-    </section>
+<!-- CART -->
+<section id="page-cart" class="page-section px-5 py-6 fade-in">
+<h2 class="text-xl font-black uppercase mb-6">Ваш заказ</h2>
+<div id="cart-items" class="space-y-3 mb-6"></div>
+<div id="cart-footer" class="hidden">
+<div class="bg-white p-6 rounded-2xl mb-4 shadow">
+<div class="flex justify-between">
+<span class="text-[10px] font-black uppercase">Итого:</span>
+<span id="cart-total" class="text-xl font-black text-blue-600">0 сом</span>
+</div>
+</div>
+<button onclick="sendOrder()" class="w-full bg-green-500 text-white py-5 rounded-2xl font-black uppercase">
+<i class="fab fa-whatsapp"></i> Отправить заказ
+</button>
+</div>
+</section>
 
-    <!-- Инфо (Профиль) -->
-    <section id="page-profile" class="page-section px-5 py-6 fade-in">
-        <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 text-center relative overflow-hidden shadow-sm">
-            <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
-            <div class="w-20 h-20 bg-blue-600 rounded-3xl mx-auto mb-4 flex items-center justify-center text-white text-3xl font-black shadow-xl">T</div>
-            <h3 class="font-black uppercase text-sm">TalasPro Электрик</h3>
-            <p class="text-[9px] text-gray-400 mt-2 uppercase tracking-widest font-bold">Талас, Кыргызстан</p>
-            <div class="mt-8 space-y-3 pt-6 border-t border-gray-50">
-                <div class="flex items-center justify-center gap-3 text-xs font-bold text-gray-700">
-                    <i class="fas fa-phone-alt text-blue-600"></i> +996 755 000 228
-                </div>
-                <div class="flex items-center justify-center gap-3 text-xs font-bold text-gray-700">
-                    <i class="fas fa-map-marker-alt text-blue-600"></i> Ул. Ленина / Талас
-                </div>
-            </div>
-        </div>
-        <div onclick="adminSecret()" class="opacity-0 py-20 text-center cursor-default">Admin Panel</div>
-    </section>
+<!-- PROFILE -->
+<section id="page-profile" class="page-section px-5 py-6 fade-in">
+<div class="bg-white p-8 rounded-3xl text-center shadow">
+<div class="w-20 h-20 bg-blue-600 rounded-3xl mx-auto text-white text-3xl flex items-center justify-center">T</div>
+<h3 class="font-black uppercase mt-4">TalasPro Электрик</h3>
+<p class="text-[9px] text-gray-400 mt-2 uppercase">Талас, Кыргызстан</p>
+</div>
+<div onclick="adminSecret()" class="opacity-0 py-20">admin</div>
+</section>
 
-    <!-- Навигация -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t py-3 flex justify-around z-[2000] shadow-2xl">
-        <button onclick="switchPage('home', this)" class="nav-btn active-tab flex flex-col items-center gap-1 text-gray-400">
-            <i class="fas fa-store text-lg"></i><span class="text-[8px] font-black uppercase">Главная</span>
-        </button>
-        <button onclick="switchPage('catalog', this)" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-            <i class="fas fa-list-ul text-lg"></i><span class="text-[8px] font-black uppercase">Каталог</span>
-        </button>
-        <button onclick="switchPage('cart', this)" class="nav-btn flex flex-col items-center gap-1 text-gray-400 relative">
-            <i class="fas fa-shopping-basket text-lg"></i>
-            <span id="cart-count" class="absolute -top-1 -right-1.5 bg-blue-600 text-white text-[7px] min-w-[14px] h-[14px] flex items-center justify-center rounded-full font-black px-1">0</span>
-            <span class="text-[8px] font-black uppercase">Заказ</span>
-        </button>
-        <button onclick="switchPage('profile', this)" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-            <i class="fas fa-info-circle text-lg"></i><span class="text-[8px] font-black uppercase">Инфо</span>
-        </button>
-    </nav>
+<!-- NAV -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-3 shadow">
+<button onclick="switchPage('home',this)" class="nav-btn active-tab flex flex-col items-center">
+<i class="fas fa-store"></i><span class="text-[8px]">Главная</span>
+</button>
+<button onclick="switchPage('catalog',this)" class="nav-btn flex flex-col items-center">
+<i class="fas fa-list"></i><span class="text-[8px]">Каталог</span>
+</button>
+<button onclick="switchPage('cart',this)" class="nav-btn flex flex-col items-center relative">
+<i class="fas fa-shopping-basket"></i>
+<span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-white text-[7px] px-1 rounded-full">0</span>
+<span class="text-[8px]">Заказ</span>
+</button>
+<button onclick="switchPage('profile',this)" class="nav-btn flex flex-col items-center">
+<i class="fas fa-info-circle"></i><span class="text-[8px]">Инфо</span>
+</button>
+</nav>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+<!-- SCRIPT -->
+<script>
+const CART_KEY='talaspro_cart';
+const ADMIN_PIN='2409';
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'talaspro-v4-final';
+let allProducts=[
+{id:'1',title:'Автомат KINEE 2P 63A',price:1250,cat:'kinee'},
+{id:'2',title:'Кабель ВВГнг 3х2.5',price:85,cat:'kabel'},
+{id:'3',title:'УЗИП KINEE',price:1800,cat:'kinee'},
+{id:'4',title:'Инвертор 5kW',price:42000,cat:'solnce'}
+];
+let cart=[];
+let clicks=0;
 
-        let allProducts = [];
-        let cart = [];
-        let clicks = 0;
+function saveCart(){localStorage.setItem(CART_KEY,JSON.stringify(cart))}
+function loadCart(){cart=JSON.parse(localStorage.getItem(CART_KEY)||'[]')}
 
-        // Запасной список товаров (если база пуста или не грузится)
-        const fallbackItems = [
-            { id: '1', title: "Автомат KINEE 2P 63A", price: 1250, cat: "kinee" },
-            { id: '2', title: "Кабель ВВГнг 3х2.5 ГОСТ", price: 85, cat: "kabel" },
-            { id: '3', title: "УЗИП 2P KINEE", price: 1800, cat: "kinee" },
-            { id: '4', title: "Инвертор Hybrid 5kW", price: 42000, cat: "solnce" }
-        ];
+function notify(t,b){
+if(Notification.permission==='granted') new Notification(t,{body:b});
+}
 
-        async function initStore() {
-            try {
-                await signInAnonymously(auth);
-                // Слушаем базу
-                onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'products'), (snap) => {
-                    const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    allProducts = data.length > 0 ? data : fallbackItems;
-                    renderProducts(allProducts);
-                }, (err) => {
-                    console.warn("Firebase error, using fallback items");
-                    allProducts = fallbackItems;
-                    renderProducts(allProducts);
-                });
-            } catch (e) {
-                allProducts = fallbackItems;
-                renderProducts(allProducts);
-            }
-        }
+if('Notification'in window && Notification.permission==='default'){
+Notification.requestPermission();
+}
 
-        function renderProducts(list) {
-            const grid = document.getElementById('productGrid');
-            if(!grid) return;
-            
-            if (list.length === 0) {
-                grid.innerHTML = `<div class="col-span-2 text-center py-20 text-gray-400 uppercase font-black text-[10px]">Товаров пока нет</div>`;
-                return;
-            }
-            
-            grid.innerHTML = list.map(p => `
-                <div class="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm flex flex-col active:scale-[0.97] transition-transform">
-                    <div class="aspect-square bg-blue-50 rounded-xl mb-3 flex items-center justify-center text-blue-200 text-2xl"><i class="fas fa-bolt"></i></div>
-                    <h3 class="font-black text-[9px] uppercase line-clamp-2 h-7 leading-tight tracking-tighter">${p.title}</h3>
-                    <div class="mt-auto pt-3">
-                        <p class="text-blue-600 font-black text-xs">${p.price} сом</p>
-                        <button onclick="addToCart('${p.id}')" class="w-full bg-gray-950 text-white py-2.5 rounded-xl text-[8px] font-black uppercase mt-2">Купить</button>
-                    </div>
-                </div>
-            `).join('');
-        }
+function renderProducts(list){
+const g=document.getElementById('productGrid');
+g.innerHTML=list.map(p=>`
+<div class="bg-white p-3 rounded-2xl shadow flex flex-col">
+<div class="aspect-square bg-blue-50 rounded-xl mb-2 flex items-center justify-center">
+<i class="fas fa-bolt text-blue-300 text-2xl"></i>
+</div>
+<h3 class="text-[9px] font-black uppercase h-7">${p.title}</h3>
+<p class="text-blue-600 font-black text-xs mt-auto">${p.price} сом</p>
+<button onclick="addToCart('${p.id}')" class="bg-black text-white py-2 mt-2 rounded-xl text-[8px] font-black">Купить</button>
+</div>`).join('');
+}
 
-        window.switchPage = (pageId, btnElement) => {
-            // Скрываем все секции
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            // Показываем нужную
-            const target = document.getElementById('page-' + pageId);
-            if(target) target.classList.add('active');
+function addToCart(id){
+const p=allProducts.find(x=>x.id===id);
+cart.push(p);
+saveCart();
+updateCart();
+notify('TalasPro','Добавлено: '+p.title);
+document.getElementById('cart-toast').classList.remove('hidden');
+setTimeout(()=>cart-toast.classList.add('hidden'),1200);
+}
 
-            // Обновляем кнопки навигации
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active-tab'));
-            if(btnElement && btnElement.classList.contains('nav-btn')) {
-                btnElement.classList.add('active-tab');
-            } else {
-                // Если нажали на логотип или из кода — ищем кнопку по id
-                const btns = document.querySelectorAll('.nav-btn');
-                if(pageId === 'home') btns[0].classList.add('active-tab');
-            }
-            window.scrollTo(0,0);
-        };
+function updateCart(){
+document.getElementById('cart-count').innerText=cart.length;
+const c=document.getElementById('cart-items');
+const f=document.getElementById('cart-footer');
+if(!cart.length){c.innerHTML='Корзина пуста';f.classList.add('hidden');return}
+f.classList.remove('hidden');
+let total=0;
+c.innerHTML=cart.map((i,n)=>{total+=i.price;return`
+<div class="bg-white p-4 rounded-xl flex justify-between shadow">
+<div>${i.title}<br><b>${i.price} сом</b></div>
+<button onclick="removeFromCart(${n})">✕</button>
+</div>`}).join('');
+document.getElementById('cart-total').innerText=total+' сом';
+}
 
-        window.addToCart = (id) => {
-            const product = allProducts.find(p => p.id === id);
-            if(product) {
-                cart.push({...product, cartId: Date.now()});
-                updateCart();
-                const toast = document.getElementById('cart-toast');
-                toast.classList.remove('hidden');
-                setTimeout(() => toast.classList.add('hidden'), 1500);
-            }
-        };
+function removeFromCart(i){cart.splice(i,1);saveCart();updateCart()}
 
-        function updateCart() {
-            document.getElementById('cart-count').innerText = cart.length;
-            const cont = document.getElementById('cart-items');
-            const footer = document.getElementById('cart-footer');
-            
-            if(cart.length === 0) {
-                cont.innerHTML = `<div class="text-center py-20 text-gray-300 font-black uppercase text-[10px]">Корзина пуста</div>`;
-                footer.classList.add('hidden');
-                return;
-            }
-            
-            footer.classList.remove('hidden');
-            let total = 0;
-            cont.innerHTML = cart.map((item, idx) => {
-                total += Number(item.price);
-                return `
-                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-gray-100 shadow-sm">
-                        <div class="truncate pr-4">
-                            <p class="text-[9px] font-black uppercase truncate">${item.title}</p>
-                            <p class="text-blue-600 font-bold text-[10px] mt-1">${item.price} сом</p>
-                        </div>
-                        <button onclick="removeFromCart(${idx})" class="w-8 h-8 bg-red-50 text-red-500 rounded-lg flex items-center justify-center active:scale-90"><i class="fas fa-trash-alt text-xs"></i></button>
-                    </div>`;
-            }).join('');
-            document.getElementById('cart-total').innerText = total + ' сом';
-        }
+function filterByCategory(c){renderProducts(c==='all'?allProducts:allProducts.filter(p=>p.cat===c));switchPage('home')}
+function handleSearch(){const q=globalSearch.value.toLowerCase();renderProducts(allProducts.filter(p=>p.title.toLowerCase().includes(q)))}
 
-        window.removeFromCart = (idx) => {
-            cart.splice(idx, 1);
-            updateCart();
-        };
+function sendOrder(){
+let m='Заказ:\n';
+cart.forEach((p,i)=>m+=`${i+1}. ${p.title} — ${p.price} сом\n`);
+notify('TalasPro','Заказ отправлен');
+open('https://wa.me/996755000228?text='+encodeURIComponent(m));
+}
 
-        window.filterByCategory = (cat) => {
-            if(cat === 'all') renderProducts(allProducts);
-            else renderProducts(allProducts.filter(p => p.cat === cat));
-            switchPage('home'); // Всегда возвращаемся на главную к товарам
-        };
+function switchPage(p,b){
+document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+document.getElementById('page-'+p).classList.add('active');
+document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active-tab'));
+b&&b.classList.add('active-tab');
+scrollTo(0,0);
+}
 
-        window.handleSearch = () => {
-            const q = document.getElementById('globalSearch').value.toLowerCase();
-            renderProducts(allProducts.filter(p => p.title.toLowerCase().includes(q)));
-        };
+function adminSecret(){
+if(++clicks>=5){
+const pin=prompt('PIN администратора');
+if(pin===ADMIN_PIN) location.href='admin/index.html';
+clicks=0;
+}
+}
 
-        window.sendOrder = () => {
-            let msg = "Здравствуйте! Хочу сделать заказ в TalasPro:\n\n";
-            cart.forEach((it, i) => msg += `${i+1}. ${it.title} — ${it.price} сом\n`);
-            msg += `\nИТОГО: ${document.getElementById('cart-total').innerText}`;
-            window.open(`https://wa.me/996755000228?text=${encodeURIComponent(msg)}`);
-        };
+loadCart();
+updateCart();
+renderProducts(allProducts);
+</script>
 
-        window.adminSecret = () => { if(++clicks >= 5) window.location.href = 'admin/index.html'; };
-
-        // Запуск
-        initStore();
-    </script>
 </body>
 </html>
-
