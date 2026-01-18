@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Akim Control Center 1.0</title>
+
+<link rel="stylesheet" href="style.css">
+<script defer src="app.js"></script>
+
+<link rel="stylesheet"
+ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="screen active">
+  <div class="login-box">
+    <h1>⚡ Akim Control Center</h1>
+    <input id="login" placeholder="Логин">
+    <input id="password" type="password" placeholder="Пароль">
+    <button onclick="login()">Войти</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" class="screen">
+
+<header>
+  <div class="brand">⚡ AKIM</div>
+
+  <div class="status">
+    <span id="gitStatus" class="dot green"></span>
+    GitHub Sync
+  </div>
+</header>
+
+<nav>
+  <button onclick="openTab('dashboard')"><i class="fa-solid fa-gauge"></i></button>
+  <button onclick="openTab('projects')"><i class="fa-solid fa-building"></i></button>
+  <button onclick="openTab('catalog')"><i class="fa-solid fa-box"></i></button>
+  <button onclick="openTab('leads')"><i class="fa-solid fa-phone"></i></button>
+  <button onclick="openTab('partners')"><i class="fa-solid fa-handshake"></i></button>
+</nav>
+
+<main>
+
+<section id="dashboard" class="tab active">
+  <h2>Dashboard</h2>
+
+  <div class="cards">
+    <div class="card">
+      <p>Объекты</p>
+      <b id="objectsCount">0</b>
+    </div>
+    <div class="card">
+      <p>Товары</p>
+      <b id="productsCount">0</b>
+    </div>
+    <div class="card">
+      <p>Заявки</p>
+      <b id="leadsCount">0</b>
+    </div>
+  </div>
+
+  <button class="primary" onclick="quickLead()">➕ Быстрая заявка</button>
+</section>
+
+<section id="projects" class="tab">
+  <h2>Портфолио / Объекты</h2>
+
+  <button class="primary" onclick="newProject()">➕ Новый объект</button>
+  <div id="projectsList"></div>
+</section>
+
+<section id="catalog" class="tab">
+  <h2>Каталог</h2>
+
+  <button onclick="increasePrices(1.1)">📈 +10% ко всем автоматам</button>
+  <div id="productsList"></div>
+</section>
+
+<section id="leads" class="tab">
+  <h2>Заявки</h2>
+  <div id="leadsList"></div>
+</section>
+
+<section id="partners" class="tab">
+  <h2>Партнеры</h2>
+  <input placeholder="Прораб / Компания">
+  <textarea placeholder="Заметки"></textarea>
+  <button class="primary">Сохранить</button>
+</section>
+
+</main>
+</div>
+
+</body>
+</html>
